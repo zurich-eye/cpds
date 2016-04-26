@@ -35,6 +35,7 @@ endif()
 
 if(BUILD_TESTS)
   find_package(GTest REQUIRED)
+  find_package(Threads REQUIRED)
 endif()
 
 include_directories(./include)
@@ -65,7 +66,7 @@ set(TEST_FILES
 set_source_files_properties(
   ${CORE_FILES} ${JSON_FILES} ${YAML_FILES}
   PROPERTIES COMPILE_FLAGS
-  "-Werror -Wall -Wextra -pedantic -fno-common -Wshadow"
+  "-Werror -Wall -Wextra -pedantic -fno-common"
 )
 
 add_library(cpds ${CORE_FILES})
@@ -91,7 +92,7 @@ if(BUILD_TESTS)
   add_executable(cpds-test ${TEST_FILES})
   target_include_directories(cpds-test PUBLIC ${GTEST_INCLUDE_DIRS})
   target_link_libraries(cpds-test cpds cpds-json cpds-yaml)
-  target_link_libraries(cpds-test ${GTEST_BOTH_LIBRARIES})
+  target_link_libraries(cpds-test ${GTEST_BOTH_LIBRARIES} Threads::Threads)
 endif()
 
 message(STATUS "-----------------------------------------")

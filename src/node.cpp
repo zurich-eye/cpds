@@ -10,6 +10,7 @@
 
 #include "cpds/node.hpp"
 #include <limits>
+#include <algorithm>
 #include "cpds/exception.hpp"
 
 namespace cpds {
@@ -381,6 +382,7 @@ bool Node::operator==(const Node& other) const noexcept
   case NodeType::Map:
     return (_map() == other._map());
   }
+  return false;
 }
 
 void Node::swap(Node& other) noexcept
