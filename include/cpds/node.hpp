@@ -74,7 +74,7 @@ public:
   Node& operator=(Node&& other) noexcept;
   //@} // Copy & Assignments
 
-  ~Node();
+  ~Node() noexcept;
 
   /**
    * \name Type Information

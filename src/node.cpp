@@ -124,7 +124,7 @@ Node::Node(Map&& value)
   std::sort(_map().begin(), _map().end(), MapCompare());
 }
 
-Node::~Node()
+Node::~Node() noexcept
 {
   switch (type_)
   {
