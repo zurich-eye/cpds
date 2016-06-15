@@ -47,7 +47,7 @@ void YamlExport::dumpNode(YAML::Emitter& emitter, const Node& node) const
     emitter << node.intValue();
     break;
   case NodeType::FloatingPoint:
-    emitter << node.floatValue();
+    dumpFloat(emitter, node);
     break;
   case NodeType::String:
     emitter << node.stringValue();
@@ -58,6 +58,31 @@ void YamlExport::dumpNode(YAML::Emitter& emitter, const Node& node) const
   case NodeType::Map:
     dumpMap(emitter, node);
     break;
+  }
+}
+
+void YamlExport::dumpFloat(YAML::Emitter& emitter, const Node& node) const
+{
+  double value = node.floatValue();
+
+  if (std::isnan(value))
+  {
+    emitter << ".nan";
+  }
+  else if (std::isinf(value))
+  {
+    if (value < 0)
+    {
+      emitter << "-.inf";
+    }
+    else
+    {
+      emitter << ".inf";
+    }
+  }
+  else
+  {
+    emitter << value;
   }
 }
 

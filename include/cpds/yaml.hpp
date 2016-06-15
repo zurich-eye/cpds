@@ -31,6 +31,7 @@ public:
   std::string dump(const Node& node);
 private:
   void dumpNode(YAML::Emitter& emitter, const Node& node) const;
+  void dumpFloat(YAML::Emitter& emitter, const Node& node) const;
   void dumpSequence(YAML::Emitter& emitter, const Node& node) const;
   void dumpMap(YAML::Emitter& emitter, const Node& node) const;
 }; // class YamlExport
