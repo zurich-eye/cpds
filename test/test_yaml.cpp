@@ -30,7 +30,7 @@ TEST(YAML, DataExport)
   exp = yaml_export.dump(buildExportNode());
   cmp = "b: true\nc: 25\nd: 99.2\ne: \"str with ä and / } \\\" \\\\ special"
         "\\n \\x01 chars\"\nf:\n  - false\n  - 3.141592653589793\n  - 6\n"
-        "g:\n  aa: 5\n  bb: inf";
+        "g:\n  aa: 5\n  bb: .inf";
   EXPECT_EQ(cmp, exp);
 }
 
@@ -40,7 +40,7 @@ TEST(YAML, DefaultDataImport)
   std::string str;
   str = "a:\nb: true\nc: 25\nd: 99.2\ne: \"str with ä and / } \\\" \\\\ special"
         "\\n \\x01 chars\"\nf:\n  - false\n  - 3.141592653589793\n  - 6\n"
-        "g:\n  aa: 5\n  bb: inf";
+        "g:\n  aa: 5\n  bb: -.inf";
 
   Node ref_node(Map({ { "a", Node() },
                       { "b", true },
@@ -48,7 +48,7 @@ TEST(YAML, DefaultDataImport)
                       { "d", 99.2 },
                       { "e", "str with ä and / } \" \\ special\n \u0001 chars" },
                       { "f", Sequence({false, 3.141592653589793, 6}) },
-                      { "g", Map({ {"aa", 5}, {"bb", std::numeric_limits<double>::infinity() } }) }
+                      { "g", Map({ {"aa", 5}, {"bb", -std::numeric_limits<double>::infinity() } }) }
                      }));
 
   Node node = yaml_import.load(str);
@@ -64,7 +64,7 @@ TEST(YAML, StringDataImport)
   std::string str;
   str = "a:\nb: true\nc: 25\nd: 99.2\ne: \"str with ä and / } \\\" \\\\ special"
         "\\n \\x01 chars\"\nf:\n  - false\n  - 3.141592653589793\n  - 6\n"
-        "g:\n  aa: 5\n  bb: inf";
+        "g:\n  aa: 5\n  bb: .inf";
 
   Node ref_node(Map({ { "a", Node() },
                       { "b", "true" },
@@ -72,7 +72,7 @@ TEST(YAML, StringDataImport)
                       { "d", "99.2" },
                       { "e", "str with ä and / } \" \\ special\n \u0001 chars" },
                       { "f", Sequence({"false", "3.141592653589793", "6"}) },
-                      { "g", Map({ {"aa", "5"}, {"bb", "inf" } }) }
+                      { "g", Map({ {"aa", "5"}, {"bb", ".inf" } }) }
                      }));
 
   Node node = yaml_import.load(str);
