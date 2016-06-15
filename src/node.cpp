@@ -18,7 +18,8 @@ namespace cpds {
 // enforce local linkage
 namespace {
 
-struct MapCompare {
+struct MapCompare
+{
   bool operator()(const MapEntry& a, const MapEntry& b) const
   {
     return a.first < b.first;
@@ -43,13 +44,13 @@ Node::Node(const Node& other)
   switch (type_)
   {
   case NodeType::String:
-    new (&storage_) String(other._string());
+    storage_.str_ = new String(other._string());
     break;
   case NodeType::Sequence:
-    new (&storage_) Sequence(other._sequence());
+    storage_.seq_ = new Sequence(other._sequence());
     break;
   case NodeType::Map:
-    new (&storage_) Map(other._map());
+    storage_.map_ = new Map(other._map());
     break;
   default:
     break;
@@ -80,35 +81,35 @@ Node::Node(const String& value)
   : type_(NodeType::String)
   , storage_()
 {
-  new (&storage_) String(value);
+  storage_.str_ = new String(value);
 }
 
 Node::Node(String&& value)
   : type_(NodeType::String)
   , storage_()
 {
-  new (&storage_) String(std::move(value));
+  storage_.str_ = new String(std::move(value));
 }
 
 Node::Node(const Sequence& value)
   : type_(NodeType::Sequence)
   , storage_()
 {
-  new (&storage_) Sequence(value);
+  storage_.seq_ = new Sequence(value);
 }
 
 Node::Node(Sequence&& value)
   : type_(NodeType::Sequence)
   , storage_()
 {
-  new (&storage_) Sequence(std::move(value));
+  storage_.seq_ = new Sequence(std::move(value));
 }
 
 Node::Node(const Map& value)
   : type_(NodeType::Map)
   , storage_()
 {
-  new (&storage_) Map(value);
+  storage_.map_ = new Map(value);
 
   // the external input is not necessarily sorted
   std::sort(_map().begin(), _map().end(), MapCompare());
@@ -118,7 +119,7 @@ Node::Node(Map&& value)
   : type_(NodeType::Map)
   , storage_()
 {
-  new (&storage_) Map(std::move(value));
+  storage_.map_ = new Map(std::move(value));
 
   // the external input is not necessarily sorted
   std::sort(_map().begin(), _map().end(), MapCompare());
@@ -129,13 +130,13 @@ Node::~Node() noexcept
   switch (type_)
   {
   case NodeType::String:
-    _string().~String();
+    delete storage_.str_;
     break;
   case NodeType::Sequence:
-    _sequence().~Sequence();
+    delete storage_.seq_;
     break;
   case NodeType::Map:
-    _map().~Map();
+    delete storage_.map_;
     break;
   default:
     break;
@@ -412,47 +413,47 @@ Map& Node::map()
 
 inline bool Node::_bool() const
 {
-  return *reinterpret_cast<const bool*>(&storage_);
+  return storage_.bool_;
 }
 
 inline Int Node::_int() const
 {
-  return *reinterpret_cast<const Int*>(&storage_);
+  return storage_.int_;
 }
 
 inline Float Node::_float() const
 {
-  return *reinterpret_cast<const Float*>(&storage_);
+  return storage_.float_;
 }
 
 inline const String& Node::_string() const
 {
-  return *reinterpret_cast<const String*>(&storage_);
+  return *(storage_.str_);
 }
 
 inline String& Node::_string()
 {
-  return *reinterpret_cast<String*>(&storage_);
+  return *(storage_.str_);
 }
 
 inline const Sequence& Node::_sequence() const
 {
-  return *reinterpret_cast<const Sequence*>(&storage_);
+  return *(storage_.seq_);
 }
 
 inline Sequence& Node::_sequence()
 {
-  return *reinterpret_cast<Sequence*>(&storage_);
+  return *(storage_.seq_);
 }
 
 inline const Map& Node::_map() const
 {
-  return *reinterpret_cast<const Map*>(&storage_);
+  return *(storage_.map_);
 }
 
 inline Map& Node::_map()
 {
-  return *reinterpret_cast<Map*>(&storage_);
+  return *(storage_.map_);
 }
 
 void Node::checkValue(unsigned long long int value)

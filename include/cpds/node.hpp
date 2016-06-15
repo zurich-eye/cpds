@@ -35,6 +35,16 @@ enum class NodeType
   Map,
 }; // enum class NodeType
 
+union Storage
+{
+  bool bool_;
+  Int int_;
+  Float float_;
+  String* str_;
+  Sequence* seq_;
+  Map* map_;
+}; // union Storage
+
 class Node
 {
 public:
@@ -209,8 +219,6 @@ private:
 
   void checkValue(unsigned long long int value);
 
-  typedef std::aligned_union<1, bool, Int, Float, String, Sequence, Map>::type Storage;
-
   NodeType type_;
   Storage storage_;
 
@@ -232,49 +240,49 @@ inline Node::Node(bool value)
   : type_(NodeType::Boolean)
   , storage_()
 {
-  new (&storage_) bool(value);
+  storage_.bool_ = value;
 }
 
 inline Node::Node(int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
 }
 
 inline Node::Node(long int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
 }
 
 inline Node::Node(long long int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
 }
 
 inline Node::Node(unsigned int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
 }
 
 inline Node::Node(unsigned long int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
 }
 
 inline Node::Node(unsigned long long int value)
   : type_(NodeType::Integer)
   , storage_()
 {
-  new (&storage_) Int(value);
+  storage_.int_ = value;
   checkValue(value);
 }
 
@@ -282,7 +290,7 @@ inline Node::Node(Float value)
   : type_(NodeType::FloatingPoint)
   , storage_()
 {
-  new (&storage_) Float(value);
+  storage_.float_ = value;
 }
 
 inline Node::Node(const char* value)
