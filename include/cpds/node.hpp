@@ -167,7 +167,7 @@ public:
   Node& operator[](String&& key);
 
   /**
-   * Key lookup for Maps. Throws for oter types.
+   * Key lookup for Maps. Throws for other types.
    **/
   Map::iterator find(const String& key);
   Map::const_iterator find(const String& key) const;
