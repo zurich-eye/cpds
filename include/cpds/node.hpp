@@ -35,16 +35,6 @@ enum class NodeType
   Map,
 }; // enum class NodeType
 
-union Storage
-{
-  bool bool_;
-  Int int_;
-  Float float_;
-  String* str_;
-  Sequence* seq_;
-  Map* map_;
-}; // union Storage
-
 class Node
 {
 public:
@@ -204,6 +194,16 @@ public:
   void swap(Node& other) noexcept;
 
 private:
+
+  union Storage
+  {
+    bool bool_;
+    Int int_;
+    Float float_;
+    String* str_;
+    Sequence* seq_;
+    Map* map_;
+  }; // union Storage
 
   Map& map();
 
