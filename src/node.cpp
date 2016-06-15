@@ -359,33 +359,6 @@ std::size_t Node::erase(const String& key)
   return 1;
 }
 
-bool Node::operator==(const Node& other) const noexcept
-{
-  if (type_ != other.type_)
-  {
-    return false;
-  }
-
-  switch (type_)
-  {
-  case NodeType::Null:
-    return true;
-  case NodeType::Boolean:
-    return (_bool() == other._bool());
-  case NodeType::Integer:
-    return (_int() == other._int());
-  case NodeType::FloatingPoint:
-    return (_float() == other._float());
-  case NodeType::String:
-    return (_string() == other._string());
-  case NodeType::Sequence:
-    return (_sequence() == other._sequence());
-  case NodeType::Map:
-    return (_map() == other._map());
-  }
-  return false;
-}
-
 void Node::swap(Node& other) noexcept
 {
   std::swap(type_, other.type_);
@@ -464,5 +437,31 @@ void Node::checkValue(unsigned long long int value)
   }
 }
 
+bool operator==(const Node& lhs, const Node& rhs) noexcept
+{
+  if (lhs.type_ != rhs.type_)
+  {
+    return false;
+  }
+
+  switch (lhs.type_)
+  {
+  case NodeType::Null:
+    return true;
+  case NodeType::Boolean:
+    return (lhs._bool() == rhs._bool());
+  case NodeType::Integer:
+    return (lhs._int() == rhs._int());
+  case NodeType::FloatingPoint:
+    return (lhs._float() == rhs._float());
+  case NodeType::String:
+    return (lhs._string() == rhs._string());
+  case NodeType::Sequence:
+    return (lhs._sequence() == rhs._sequence());
+  case NodeType::Map:
+    return (lhs._map() == rhs._map());
+  }
+  return false;
+}
 
 } // namespace cpds

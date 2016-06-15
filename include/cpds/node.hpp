@@ -188,10 +188,9 @@ public:
   const Map& map() const;
   //@} // Data Access
 
-  bool operator==(const Node& other) const noexcept;
-  bool operator!=(const Node& other) const noexcept { return !operator==(other); }
-
   void swap(Node& other) noexcept;
+
+  friend bool operator==(const Node& lhs, const Node& rhs) noexcept;
 
 private:
 
@@ -225,6 +224,9 @@ private:
 }; // class Node
 
 inline void swap(Node& lhs, Node& rhs) noexcept { lhs.swap(rhs); }
+
+bool operator==(const Node& lhs, const Node& hrs) noexcept;
+bool operator!=(const Node& lhs, const Node& rhs) noexcept;
 
 //
 // inline implementations
@@ -312,6 +314,11 @@ template <typename T>
 T Node::as() const
 {
   return custom_converter<T>::transform(*this);
+}
+
+inline bool operator!=(const Node& lhs, const Node& rhs) noexcept
+{
+  return !operator==(lhs, rhs);
 }
 
 } // namespace cpds
