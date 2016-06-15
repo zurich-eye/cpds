@@ -165,6 +165,20 @@ Node YamlImport::transformScalar(const YAML::Node& node) const
     }
     catch (YAML::Exception& e) { }
 
+    // special handling for NaN, Inf
+    if (node.Scalar() == ".nan")
+    {
+      return Node(std::numeric_limits<double>::quiet_NaN());
+    }
+    else if (node.Scalar() == ".inf")
+    {
+      return Node(std::numeric_limits<double>::infinity());
+    }
+    else if (node.Scalar() == "-.inf")
+    {
+      return Node(-std::numeric_limits<double>::infinity());
+    }
+
     try
     {
       double value = node.as<double>();
