@@ -188,6 +188,23 @@ public:
   const Map& map() const;
   //@} // Data Access
 
+  /**
+   * Merges the other node into this node.
+   *
+   * The merge rules are as follows:
+   * - Both nodes must have the same type or an exception will be thrown.
+   * - For scalars, this node will take on the value of the other node.
+   * - For sequences and maps the merge will be performed recursively for each
+   *   child of the other node.
+   * - For sequences, remaining children of the other node will be copied into
+   *   this node.
+   * - For maps, all unique keys of the other node will be copied into
+   *   this node.
+   *
+   * This method provides only the basic exception guarantee.
+   **/
+  void merge(const Node& other);
+
   void swap(Node& other) noexcept;
 
   friend bool operator==(const Node& lhs, const Node& rhs) noexcept;
@@ -217,6 +234,9 @@ private:
   Map& _map();
 
   void checkValue(unsigned long long int value);
+
+  void mergeSequence(const Node& other);
+  void mergeMap(const Node& other);
 
   NodeType type_;
   Storage storage_;

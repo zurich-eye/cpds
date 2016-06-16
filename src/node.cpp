@@ -359,6 +359,27 @@ std::size_t Node::erase(const String& key)
   return 1;
 }
 
+void Node::merge(const Node& other)
+{
+  if (type_ != other.type_)
+  {
+    throw TypeException();
+  }
+
+  switch (type_)
+  {
+  case NodeType::Sequence:
+    mergeSequence(other);
+    break;
+  case NodeType::Map:
+    mergeMap(other);
+    break;
+  default:
+    *this = other; // default copy assignment
+    break;
+  }
+}
+
 void Node::swap(Node& other) noexcept
 {
   std::swap(type_, other.type_);
@@ -434,6 +455,49 @@ void Node::checkValue(unsigned long long int value)
   if (value > std::numeric_limits<long long int>::max())
   {
     throw OverflowException();
+  }
+}
+
+void Node::mergeSequence(const Node& other)
+{
+  Sequence& loc_seq = _sequence();
+  const Sequence& other_seq = other._sequence();
+  std::size_t num_merges = std::min(loc_seq.size(), other_seq.size());
+
+  for (std::size_t i = 0; i < num_merges; ++i)
+  {
+    loc_seq[i].merge(other_seq[i]);
+  }
+  loc_seq.insert(loc_seq.end(), other_seq.begin()+num_merges, other_seq.end());
+}
+
+void Node::mergeMap(const Node& other)
+{
+  Map& loc_map = _map();
+  const Map& other_map = other._map();
+  Map::iterator loc_iter = loc_map.begin();
+  MapCompare comp;
+  for (Map::const_iterator other_iter = other_map.begin();
+       other_iter != other_map.end(); ++other_iter)
+  {
+    // progress the local iter until or past the other key
+    while (loc_iter != loc_map.end() && comp(*loc_iter, *other_iter) == true)
+    {
+      ++loc_iter;
+    }
+    // if the key matches, merge recursively else insert at the current position
+    if (loc_iter != loc_map.end() && comp(*other_iter, *loc_iter) == false)
+    {
+      (*loc_iter).second.merge((*other_iter).second);
+      ++loc_iter;
+    }
+    else
+    {
+      // the insert operation will invalidate the local iterator
+      unsigned distance = std::distance(loc_map.begin(), loc_iter);
+      loc_map.insert(loc_iter, *other_iter);
+      loc_iter = loc_map.begin()+distance;
+    }
   }
 }
 

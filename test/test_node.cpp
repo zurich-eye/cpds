@@ -377,3 +377,44 @@ TEST(Node, Comparison)
   EXPECT_TRUE(n4 != n3);
   EXPECT_FALSE(n4 != n4);
 }
+
+TEST(Node, Merge)
+{
+  Node node1(Map({ { "a", Node() },
+                   { "b", true },
+                   { "c", 25 },
+                   { "d", 99.0 },
+                   { "e", "some str" },
+                   { "f", Sequence({false, 3.141592653589793, 6}) },
+                   { "g", Map({ {"aa", 5}, {"bb", "test" } }) },
+                   { "h", Sequence({ 3, 4, 5}) }
+                 }));
+
+  Node node2(Map({ { "b", false },
+                   { "d", 95.4 },
+                   { "i", "other str" },
+                   { "f", Sequence({true, 4.67, 6, "my string"}) },
+                   { "g", Map({ {"cc", 6}, {"dd", false } }) },
+                   { "h", Sequence({ 6, 7}) }
+                 }));
+  Node refnode(Map({ { "a", Node() },
+                     { "b", false },
+                     { "c", 25 },
+                     { "d", 95.4 },
+                     { "e", "some str" },
+                     { "f", Sequence({true, 4.67, 6, "my string"}) },
+                     { "g", Map({ {"aa", 5}, {"bb", "test" },
+                                  {"cc", 6}, {"dd", false } }) },
+                     { "h", Sequence({ 6, 7, 5}) },
+                     { "i", "other str" },
+                 }));
+
+  node1.merge(node2);
+
+  EXPECT_EQ(refnode, node1);
+
+  node1 = 5;
+  node2 = 6.7;
+
+  EXPECT_THROW(node1.merge(node2), TypeException);
+}
