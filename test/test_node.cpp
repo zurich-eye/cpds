@@ -305,26 +305,35 @@ TEST(Node, CopyAndMoveSemantics)
 {
   const Node* sp1;
   const Node* sp2;
+  uint32_t id3;
 
   Node n1 = 5;
   Node n2 = 6.7;
   Node n3 = Sequence({1, 2, 3});
   sp1 = n3.sequence().data();
+  // the IDs must be different
+  EXPECT_NE(n1.id(), n2.id());
+  EXPECT_NE(n1.id(), n3.id());
+  EXPECT_NE(n2.id(), n3.id());
 
   Node n4(n1); // copy constructor
   EXPECT_EQ(NodeType::Integer, n4.type());
   EXPECT_EQ(5, n4.intValue());
+  EXPECT_EQ(n1.id(), n4.id()); // same ID
 
+  id3 = n3.id();
   Node n5(std::move(n3)); // move constructor
   EXPECT_EQ(NodeType::Sequence, n5.type());
   EXPECT_EQ(NodeType::Null, n3.type());
   EXPECT_EQ(Sequence({1, 2, 3}), n5.sequence());
   sp2 = n5.sequence().data();
   EXPECT_EQ(sp1, sp2); // the pointer was moved
+  EXPECT_EQ(id3, n5.id()); // same ID
 
   n3 = n2; // copy assignment
   EXPECT_EQ(NodeType::FloatingPoint, n3.type());
   EXPECT_EQ(6.7, n3.floatValue());
+  EXPECT_EQ(n2.id(), n3.id());
 
   n2 = std::move(n5); // move assignment
   EXPECT_EQ(NodeType::Sequence, n2.type());
@@ -332,6 +341,7 @@ TEST(Node, CopyAndMoveSemantics)
   EXPECT_EQ(Sequence({1, 2, 3}), n2.sequence());
   sp2 = n2.sequence().data();
   EXPECT_EQ(sp1, sp2);
+  EXPECT_EQ(id3, n2.id());
 }
 
 TEST(Node, Comparison)

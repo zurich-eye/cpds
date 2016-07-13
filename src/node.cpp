@@ -38,6 +38,7 @@ struct MapCompare
 
 Node::Node(const Node& other)
   : type_(other.type_)
+  , id_(other.id_)
   , storage_(other.storage_)
 {
   // need to do a deep copy for the pointer types
@@ -59,6 +60,7 @@ Node::Node(const Node& other)
 
 Node::Node(Node&& other) noexcept
   : type_(other.type_)
+  , id_(other.id_)
   , storage_(other.storage_)
 {
   other.type_ = NodeType::Null; // avoid double free
@@ -79,6 +81,7 @@ Node& Node::operator=(Node&& other) noexcept
 
 Node::Node(const String& value)
   : type_(NodeType::String)
+  , id_(_nextId())
   , storage_()
 {
   storage_.str_ = new String(value);
@@ -86,6 +89,7 @@ Node::Node(const String& value)
 
 Node::Node(String&& value)
   : type_(NodeType::String)
+  , id_(_nextId())
   , storage_()
 {
   storage_.str_ = new String(std::move(value));
@@ -93,6 +97,7 @@ Node::Node(String&& value)
 
 Node::Node(const Sequence& value)
   : type_(NodeType::Sequence)
+  , id_(_nextId())
   , storage_()
 {
   storage_.seq_ = new Sequence(value);
@@ -100,6 +105,7 @@ Node::Node(const Sequence& value)
 
 Node::Node(Sequence&& value)
   : type_(NodeType::Sequence)
+  , id_(_nextId())
   , storage_()
 {
   storage_.seq_ = new Sequence(std::move(value));
@@ -107,6 +113,7 @@ Node::Node(Sequence&& value)
 
 Node::Node(const Map& value)
   : type_(NodeType::Map)
+  , id_(_nextId())
   , storage_()
 {
   storage_.map_ = new Map(value);
@@ -117,6 +124,7 @@ Node::Node(const Map& value)
 
 Node::Node(Map&& value)
   : type_(NodeType::Map)
+  , id_(_nextId())
   , storage_()
 {
   storage_.map_ = new Map(std::move(value));
@@ -382,8 +390,10 @@ void Node::merge(const Node& other)
 
 void Node::swap(Node& other) noexcept
 {
-  std::swap(type_, other.type_);
-  std::swap(storage_, other.storage_);
+  using std::swap;
+  swap(type_, other.type_);
+  swap(id_, other.id_);
+  swap(storage_, other.storage_);
 }
 
 const Map& Node::map() const
@@ -404,6 +414,8 @@ Map& Node::map()
   }
   return _map();
 }
+
+std::atomic<uint32_t> Node::s_id_(0);
 
 inline bool Node::_bool() const
 {

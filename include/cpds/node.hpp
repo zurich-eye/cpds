@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <cstdint>
+#include <atomic>
 #include "cpds/typedefs.hpp"
 
 namespace cpds {
@@ -168,6 +170,15 @@ public:
   //@} // Data Access
 
   /**
+   * Returns the ID of this node.
+   * An ID is assigned every time a node is created from 'real' data.
+   * Copying / moving a node does not modify the ID.
+   * The ID can be used to associate auxiliary data (e.g. file line number)
+   * with a node.
+   **/
+  uint32_t id() const { return id_; }
+
+  /**
    * Merges the other node into this node.
    *
    * The merge rules are as follows:
@@ -190,6 +201,8 @@ public:
 
 private:
 
+  static std::atomic<uint32_t> s_id_;
+
   union Storage
   {
     bool bool_;
@@ -201,6 +214,8 @@ private:
   }; // union Storage
 
   Map& map();
+
+  uint32_t _nextId() const;
 
   bool _bool() const;
   Int _int() const;
@@ -218,6 +233,7 @@ private:
   void mergeMap(const Node& other);
 
   NodeType type_;
+  uint32_t id_;
   Storage storage_;
 
 }; // class Node
@@ -233,12 +249,14 @@ bool operator!=(const Node& lhs, const Node& rhs) noexcept;
 
 inline Node::Node()
   : type_(NodeType::Null)
+  , id_(_nextId())
   , storage_()
 {
 }
 
 inline Node::Node(bool value)
   : type_(NodeType::Boolean)
+  , id_(_nextId())
   , storage_()
 {
   storage_.bool_ = value;
@@ -246,6 +264,7 @@ inline Node::Node(bool value)
 
 inline Node::Node(int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -253,6 +272,7 @@ inline Node::Node(int value)
 
 inline Node::Node(long int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -260,6 +280,7 @@ inline Node::Node(long int value)
 
 inline Node::Node(long long int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -267,6 +288,7 @@ inline Node::Node(long long int value)
 
 inline Node::Node(unsigned int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -274,6 +296,7 @@ inline Node::Node(unsigned int value)
 
 inline Node::Node(unsigned long int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -281,6 +304,7 @@ inline Node::Node(unsigned long int value)
 
 inline Node::Node(unsigned long long int value)
   : type_(NodeType::Integer)
+  , id_(_nextId())
   , storage_()
 {
   storage_.int_ = value;
@@ -289,6 +313,7 @@ inline Node::Node(unsigned long long int value)
 
 inline Node::Node(Float value)
   : type_(NodeType::FloatingPoint)
+  , id_(_nextId())
   , storage_()
 {
   storage_.float_ = value;
@@ -304,15 +329,19 @@ struct custom_converter;
 
 template <typename T>
 Node::Node(const T& value)
-  : Node()
+  : Node(custom_converter<T>::transform(value))
 {
-  *this = custom_converter<T>::transform(value);
 }
 
 template <typename T>
 T Node::as() const
 {
   return custom_converter<T>::transform(*this);
+}
+
+inline uint32_t Node::_nextId() const
+{
+  return s_id_.fetch_add(1, std::memory_order_relaxed);
 }
 
 inline bool operator!=(const Node& lhs, const Node& rhs) noexcept
