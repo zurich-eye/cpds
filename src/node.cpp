@@ -1,5 +1,5 @@
 /*
- * node.hpp
+ * node.cpp
  * cpds
  *
  * Copyright (c) 2016 Hannes Friederich.
