@@ -42,9 +42,12 @@ include_directories(./include)
 
 set(CORE_FILES
   include/cpds/exception.hpp
+  include/cpds/typedefs.hpp
   include/cpds/node.hpp
+  include/cpds/validator.hpp
   src/exception.cpp
   src/node.cpp
+  src/validator.cpp
 )
 
 set(JSON_FILES
@@ -61,6 +64,7 @@ set(TEST_FILES
   test/test_node.cpp
   test/test_json.cpp
   test/test_yaml.cpp
+  test/test_validator.cpp
 )
 
 set_source_files_properties(

@@ -12,6 +12,33 @@
 
 namespace cpds {
 
+// enforce local linkage
+namespace {
+
+String buildIntRangeMsg(Int min, Int max, Int actual)
+{
+  String msg("value out of bounds: range [");
+  msg += std::to_string(min);
+  msg += ":";
+  msg += std::to_string(max);
+  msg += "], actual ";
+  msg += std::to_string(actual);
+  return msg;
+}
+
+String buildFloatRangeMsg(Float min, Float max, Float actual)
+{
+  String msg("value out of bounds: range [");
+  msg += std::to_string(min);
+  msg += ":";
+  msg += std::to_string(max);
+  msg += "], actual ";
+  msg += std::to_string(actual);
+  return msg;
+}
+
+} // unnamed namespace
+
 const char* TypeException::what() const noexcept
 {
   return "data type mismatch.";
@@ -49,6 +76,26 @@ ImportException::ImportException(unsigned line,
 const char* ImportException::what() const noexcept
 {
   return msg_.c_str();
+}
+
+ValidationException::ValidationException(String msg)
+  : msg_(std::move(msg))
+{
+}
+
+const char* ValidationException::what() const noexcept
+{
+  return msg_.c_str();
+}
+
+IntRangeException::IntRangeException(Int min, Int max, Int actual)
+  : ValidationException(buildIntRangeMsg(min, max, actual))
+{
+}
+
+FloatRangeException::FloatRangeException(Float min, Float max, Float actual)
+  : ValidationException(buildFloatRangeMsg(min, max, actual))
+{
 }
 
 } // namespace cpds

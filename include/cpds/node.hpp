@@ -1,5 +1,5 @@
 /*
- * object.hpp
+ * node.hpp
  * cpds
  *
  * Copyright (c) 2016 Hannes Friederich.
@@ -10,30 +10,9 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "cpds/typedefs.hpp"
 
 namespace cpds {
-
-class Node;
-
-typedef long long int Int;
-typedef double Float;
-typedef std::string String;
-typedef std::vector<Node> Sequence;
-typedef std::pair<std::string, Node> MapEntry;
-typedef std::vector<MapEntry> Map;
-
-enum class NodeType
-{
-  Null,
-  Boolean,
-  Integer,
-  FloatingPoint,
-  String,
-  Sequence,
-  Map,
-}; // enum class NodeType
 
 class Node
 {
@@ -72,7 +51,7 @@ public:
   Node(Node&& other) noexcept;
   Node& operator=(const Node& other);
   Node& operator=(Node&& other) noexcept;
-  //@} // Copy & Assignments
+  //@} // Copy & Assignment
 
   ~Node() noexcept;
 

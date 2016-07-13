@@ -12,6 +12,7 @@
 
 #include <exception>
 #include <string>
+#include "cpds/typedefs.hpp"
 
 namespace cpds {
 
@@ -44,7 +45,28 @@ public:
   ImportException(unsigned line, unsigned pos, const char* const msg);
   virtual const char* what() const noexcept override;
 private:
-  std::string msg_;
+  String msg_;
 }; // class ImportException
+
+class ValidationException : public Exception
+{
+public:
+  ValidationException(String msg);
+  virtual const char* what() const noexcept override;
+private:
+  String msg_;
+}; // class ValidationException
+
+class IntRangeException : public ValidationException
+{
+public:
+  IntRangeException(Int min, Int max, Int actual);
+}; // class IntRangeException
+
+class FloatRangeException : public ValidationException
+{
+public:
+  FloatRangeException(Float min, Float max, Float actual);
+}; // class FloatRangeException
 
 } // namespace cpds
