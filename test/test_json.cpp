@@ -1,3 +1,4 @@
+#include <fstream>
 #include <gtest/gtest.h>
 #include "cpds/node.hpp"
 #include "cpds/json.hpp"
@@ -67,7 +68,76 @@ TEST(JSON, DataImport)
   std::string exp = json_export.dump(node);
   EXPECT_EQ(str, exp);
 
+  // ensure the parse marks are properly placed
+  const ParseInfo& pi = json_import.parseinfo();
+  ParseMark mk = pi.getMark(node);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(0, mk.position());
+  mk = pi.getMark(node["a"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(5, mk.position());
+  mk = pi.getMark(node["b"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(14, mk.position());
+  mk = pi.getMark(node["c"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(23, mk.position());
+  mk = pi.getMark(node["d"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(30, mk.position());
+  mk = pi.getMark(node["e"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(39, mk.position());
+  mk = pi.getMark(node["f"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(95, mk.position());
+  mk = pi.getMark(node["f"][0]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(96, mk.position());
+  mk = pi.getMark(node["f"][1]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(102, mk.position());
+  mk = pi.getMark(node["g"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(118, mk.position());
+
   str = "{a:true}";
 
   EXPECT_THROW(json_import.load(str), ImportException);
+}
+
+TEST(JSON, FileImport)
+{
+  std::string str;
+  str = "{\n\"a\":null,\n\"b\":true,\n\"c\":25\n}\n";
+  {
+    std::ofstream strm("/tmp/cpds.json");
+    strm << str;
+  }
+
+  JsonImport json_import;
+  Node node = json_import.loadFromFile("/tmp/cpds.json");
+
+  EXPECT_TRUE(node.isMap());
+  EXPECT_EQ(Node(), node["a"]);
+  EXPECT_TRUE(node["b"].asBool());
+  EXPECT_EQ(25, node["c"].asInt());
+
+  const ParseInfo& pi = json_import.parseinfo();
+  ParseMark mk = pi.getMark(node);
+  EXPECT_EQ("/tmp/cpds.json", mk.filename());
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(0, mk.position());
+  mk = pi.getMark(node["a"]);
+  EXPECT_EQ("/tmp/cpds.json", mk.filename());
+  EXPECT_EQ(2, mk.line());
+  EXPECT_EQ(4, mk.position());
+  mk = pi.getMark(node["b"]);
+  EXPECT_EQ("/tmp/cpds.json", mk.filename());
+  EXPECT_EQ(3, mk.line());
+  EXPECT_EQ(4, mk.position());
+  mk = pi.getMark(node["c"]);
+  EXPECT_EQ("/tmp/cpds.json", mk.filename());
+  EXPECT_EQ(4, mk.line());
+  EXPECT_EQ(4, mk.position());
 }

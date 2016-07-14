@@ -14,10 +14,9 @@
 #include <ostream>
 #include <istream>
 #include <string>
+#include "cpds/parseinfo.hpp"
 
 namespace cpds {
-
-class Node;
 
 /**
  * Exports the data structure into JSON format.
@@ -60,9 +59,17 @@ class JsonImport
 {
 public:
   Node load(std::istream& strm);
-  Node load(const std::string& str);
+  Node load(const String& str);
+  Node loadFromFile(const String& str);
+
+  /**
+   * Returns the parse info structure associated with the last parse action
+   **/
+  const ParseInfo& parseinfo() const { return parseinfo_; }
 
 private:
+  Node load(std::istream& strm, StringPtr filename);
+
   Node loadValue();
   Node loadNull();
   Node loadTrue();
@@ -77,14 +84,19 @@ private:
 
   char peek();
   char read(); // reads the next character
-  void skipWs(); // skips whitespace3
+  void skipWs(); // skips whitespace
+
+  ParseMark currentMark() const;
+  void registerNode(const Node& node, ParseMark&& mark);
 
   void raise() const;
   void raise(const char* msg) const;
 
   std::istream* strm_ = nullptr;
+  StringPtr filename_;
   unsigned line_ = 0;
   unsigned pos_ = 0;
+  ParseInfo parseinfo_;
 }; // class JsonImport
 
 } // namespace cpds

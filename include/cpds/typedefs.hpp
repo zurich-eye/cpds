@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace cpds {
 
@@ -23,6 +24,8 @@ typedef std::string String;
 typedef std::vector<Node> Sequence;
 typedef std::pair<std::string, Node> MapEntry;
 typedef std::vector<MapEntry> Map;
+
+typedef std::shared_ptr<String> StringPtr;
 
 enum class NodeType
 {

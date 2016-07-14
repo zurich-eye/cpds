@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cassert>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <codecvt>
 #include <limits>
@@ -265,14 +266,33 @@ void JsonExport::dumpOffset(std::ostream& strm)
 // JsonImport implementation
 //
 
-Node JsonImport::load(std::istream &strm)
+Node JsonImport::load(std::istream& strm)
+{
+  return load(strm, nullptr);
+}
+
+Node JsonImport::load(const String& str)
+{
+  std::stringstream sstrm(str);
+  return load(sstrm);
+}
+
+Node JsonImport::loadFromFile(const String& filename)
+{
+  std::ifstream fstrm(filename.c_str());
+  return load(fstrm, std::make_shared<String>(filename));
+}
+
+Node JsonImport::load(std::istream& strm, StringPtr filename)
 {
   // only reset the line and position if the stream changed
   if (strm_ != &strm)
   {
     strm_ = &strm;
+    filename_ = filename;
     line_ = 1;
     pos_ = 0;
+    parseinfo_.clear();
   }
 
   skipWs();
@@ -281,12 +301,6 @@ Node JsonImport::load(std::istream &strm)
     raise("not a JSON object");
   }
   return loadMap();
-}
-
-Node JsonImport::load(const std::string& str)
-{
-  std::stringstream sstrm(str);
-  return load(sstrm);
 }
 
 Node JsonImport::loadValue()
@@ -329,6 +343,8 @@ Node JsonImport::loadValue()
 
 Node JsonImport::loadNull()
 {
+  ParseMark mark = currentMark();
+
   if (read() != 'n' ||
       read() != 'u' ||
       read() != 'l' ||
@@ -337,11 +353,15 @@ Node JsonImport::loadNull()
     raise();
   }
   skipWs();
-  return Node();
+  Node node;
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 Node JsonImport::loadTrue()
 {
+  ParseMark mark = currentMark();
+
   if (read() != 't' ||
       read() != 'r' ||
       read() != 'u' ||
@@ -350,11 +370,16 @@ Node JsonImport::loadTrue()
     raise();
   }
   skipWs();
-  return true;
+
+  Node node(true);
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 Node JsonImport::loadFalse()
 {
+  ParseMark mark = currentMark();
+
   if (read() != 'f' ||
       read() != 'a' ||
       read() != 'l' ||
@@ -364,11 +389,16 @@ Node JsonImport::loadFalse()
     raise();
   }
   skipWs();
-  return false;
+
+  Node node(false);
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 Node JsonImport::loadNumber()
 {
+  ParseMark mark = currentMark();
+
   bool is_negative = false;
   bool has_fraction = false;
   bool has_exponent = false;
@@ -507,7 +537,10 @@ Node JsonImport::loadNumber()
     {
       raise();
     }
-    return value;
+
+    Node node(value);
+    registerNode(node, std::move(mark));
+    return node;
   }
   else
   {
@@ -516,19 +549,28 @@ Node JsonImport::loadNumber()
     if (is_negative)
     {
       // explicit cast to ensure the correct Node constructor is used
-      return static_cast<int64_t>(-1*integer);
+      Node node(static_cast<Int>(-1*integer));
+      parseinfo_.insert(std::make_pair(node.id(), mark));
+      return node;
     }
-    return integer;
+
+    Node node(integer);
+    registerNode(node, std::move(mark));
+    return node;
   }
 }
 
 Node JsonImport::loadString()
 {
-  return parseString();
+  ParseMark mark = currentMark();
+  Node node = parseString();
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 Node JsonImport::loadSequence()
 {
+  ParseMark mark = currentMark();
   Sequence seq;
 
   char c = read();
@@ -563,11 +605,15 @@ Node JsonImport::loadSequence()
   read();
   skipWs();
 
-  return Node(seq);
+  Node node(seq);
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 Node JsonImport::loadMap()
 {
+  ParseMark mark = currentMark();
+
   Map map;
 
   char c = read();
@@ -609,7 +655,9 @@ Node JsonImport::loadMap()
   read();
   skipWs();
 
-  return Node(map);
+  Node node(map);
+  registerNode(node, std::move(mark));
+  return node;
 }
 
 std::string JsonImport::parseString()
@@ -775,12 +823,22 @@ void JsonImport::skipWs()
   }
 }
 
-void JsonImport::raise() const
+inline ParseMark JsonImport::currentMark() const
+{
+  return ParseMark(filename_, line_, pos_);
+}
+
+inline void JsonImport::registerNode(const Node& node, ParseMark&& mark)
+{
+  parseinfo_.insert(std::make_pair(node.id(), std::move(mark)));
+}
+
+inline void JsonImport::raise() const
 {
   throw ImportException(line_, pos_, "JSON syntax error");
 }
 
-void JsonImport::raise(const char *msg) const
+inline void JsonImport::raise(const char *msg) const
 {
   throw ImportException(line_, pos_, msg);
 }

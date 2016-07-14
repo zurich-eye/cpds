@@ -45,9 +45,11 @@ set(CORE_FILES
   include/cpds/typedefs.hpp
   include/cpds/node.hpp
   include/cpds/validator.hpp
+  include/cpds/parseinfo.hpp
   src/exception.cpp
   src/node.cpp
   src/validator.cpp
+  src/parseinfo.cpp
 )
 
 set(JSON_FILES
@@ -65,6 +67,7 @@ set(TEST_FILES
   test/test_json.cpp
   test/test_yaml.cpp
   test/test_validator.cpp
+  test/test_parseinfo.cpp
 )
 
 set_source_files_properties(
