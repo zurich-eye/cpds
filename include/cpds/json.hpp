@@ -32,7 +32,7 @@ class JsonExport
 {
 public:
   void dump(std::ostream& strm, const Node& node);
-  std::string dump(const Node& node);
+  String dump(const Node& node);
 
   unsigned precision() const { return precision_; }
   void setPrecision(unsigned precision) { precision_ = precision; }
@@ -43,7 +43,7 @@ public:
 private:
   void dumpNode(std::ostream &strm, const Node &node);
   void dumpFloat(std::ostream& strm, double value);
-  void dumpString(std::ostream& strm, const std::string& value);
+  void dumpString(std::ostream& strm, const String& value);
   void dumpSequence(std::ostream& strm, const Node& node);
   void dumpMap(std::ostream& strm, const Node& node);
 
@@ -79,7 +79,7 @@ private:
   Node loadSequence();
   Node loadMap();
 
-  std::string parseString();
+  String parseString();
   uint16_t parseCharacter();
 
   char peek();

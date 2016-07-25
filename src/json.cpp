@@ -63,7 +63,7 @@ void JsonExport::dump(std::ostream& strm, const Node& node)
   dumpNode(strm, node);
 }
 
-std::string JsonExport::dump(const Node& node)
+String JsonExport::dump(const Node& node)
 {
   std::stringstream sstrm;
   dump(sstrm, node);
@@ -404,7 +404,7 @@ Node JsonImport::loadNumber()
   bool has_exponent = false;
 
   uint64_t integer = 0; // for the integer parsing
-  std::string number_str; // for float parsing (std::stod)
+  String number_str; // for float parsing (std::stod)
 
   char c = read();
   number_str += c;
@@ -625,7 +625,7 @@ Node JsonImport::loadMap()
   {
     while (true)
     {
-      std::string key = parseString();
+      String key = parseString();
       c = read();
       if (c != ':')
       {
@@ -660,9 +660,9 @@ Node JsonImport::loadMap()
   return node;
 }
 
-std::string JsonImport::parseString()
+String JsonImport::parseString()
 {
-  std::string str;
+  String str;
   bool escape = false;
 
   char c = read();
