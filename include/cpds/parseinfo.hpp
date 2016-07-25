@@ -38,7 +38,7 @@ class ParseInfo : public std::map<int, ParseMark>
 {
 public:
   const ParseMark& getMark(const Node& node) const;
-};
+}; // class ParseInfo
 
 //
 // inline implementations
