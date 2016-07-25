@@ -9,7 +9,11 @@
  */
 
 #include "cpds/yaml.hpp"
+#include <cmath>
+#include <cassert>
+#include <fstream>
 #include <yaml-cpp/yaml.h>
+#include <yaml-cpp/node/node.h>
 #include "cpds/node.hpp"
 #include "cpds/exception.hpp"
 
@@ -25,7 +29,7 @@ void YamlExport::dump(std::ostream& strm, const Node& node)
   dumpNode(emitter, node);
 }
 
-std::string YamlExport::dump(const Node& node)
+String YamlExport::dump(const Node& node)
 {
   std::stringstream sstrm;
   dump(sstrm, node);
@@ -115,8 +119,32 @@ void YamlExport::dumpMap(YAML::Emitter& emitter, const Node& node) const
 
 Node YamlImport::load(std::istream& strm)
 {
+  return load(strm, nullptr);
+}
+
+Node YamlImport::load(const String& str)
+{
+  std::stringstream sstrm(str);
+  return load(sstrm);
+}
+
+Node YamlImport::loadFromFile(const String& filename)
+{
+  std::ifstream fstrm(filename.c_str());
+  return load(fstrm, std::make_shared<String>(filename));
+}
+
+Node YamlImport::load(std::istream &strm, StringPtr filename)
+{
   try
   {
+    // reset the parse info when the stream changes
+    if (strm_ != &strm)
+    {
+      strm_ = &strm;
+      parseinfo_.clear();
+    }
+    filename_ = filename;
     return transform(YAML::Load(strm));
   }
   catch (YAML::Exception& e)
@@ -125,13 +153,16 @@ Node YamlImport::load(std::istream& strm)
   }
 }
 
-Node YamlImport::load(const std::string& str)
+Node YamlImport::transform(const YAML::Node& node)
 {
-  std::stringstream sstrm(str);
-  return load(sstrm);
+  Node n = doTransform(node);
+  const YAML::Mark mark = node.Mark();
+  ParseMark pm(filename_, mark.line, mark.column);
+  parseinfo_.insert(std::make_pair(n.id(), std::move(pm)));
+  return n;
 }
 
-Node YamlImport::transform(const YAML::Node& node) const
+Node YamlImport::doTransform(const YAML::Node& node)
 {
   assert(node.IsDefined());
   switch (node.Type())
@@ -147,7 +178,7 @@ Node YamlImport::transform(const YAML::Node& node) const
   }
 }
 
-Node YamlImport::transformScalar(const YAML::Node& node) const
+Node YamlImport::transformScalar(const YAML::Node& node)
 {
   if (parse_scalars_)
   {
@@ -190,7 +221,7 @@ Node YamlImport::transformScalar(const YAML::Node& node) const
   return Node(node.Scalar());
 }
 
-Node YamlImport::transformSequence(const YAML::Node& node) const
+Node YamlImport::transformSequence(const YAML::Node& node)
 {
   Sequence seq;
   seq.reserve(node.size());
@@ -201,7 +232,7 @@ Node YamlImport::transformSequence(const YAML::Node& node) const
   return Node(std::move(seq));
 }
 
-Node YamlImport::transformMap(const YAML::Node& node) const
+Node YamlImport::transformMap(const YAML::Node& node)
 {
   Map map;
   map.reserve(node.size());

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <ostream>
+#include "cpds/parseinfo.hpp"
 
 namespace YAML {
   class Emitter;
@@ -28,7 +29,7 @@ class YamlExport
 {
 public:
   void dump(std::ostream& strm, const Node& node);
-  std::string dump(const Node& node);
+  String dump(const Node& node);
 private:
   void dumpNode(YAML::Emitter& emitter, const Node& node) const;
   void dumpFloat(YAML::Emitter& emitter, const Node& node) const;
@@ -43,7 +44,13 @@ class YamlImport
 {
 public:
   Node load(std::istream& strm);
-  Node load(const std::string& str);
+  Node load(const String& str);
+  Node loadFromFile(const String& str);
+
+  /**
+   * Returns the parse info structure associated with the last parse action
+   **/
+  const ParseInfo& parseinfo() const { return parseinfo_; }
 
   /**
    * YAML treats all scalars as strings.
@@ -55,11 +62,17 @@ public:
   void setParseScalars(bool flag) { parse_scalars_ = flag; }
 
 private:
-  Node transform(const YAML::Node& node) const;
-  Node transformScalar(const YAML::Node& node) const;
-  Node transformSequence(const YAML::Node& node) const;
-  Node transformMap(const YAML::Node& node) const;
+  Node load(std::istream& strm, StringPtr filename);
 
+  Node transform(const YAML::Node& node);
+  Node doTransform(const YAML::Node& node);
+  Node transformScalar(const YAML::Node& node);
+  Node transformSequence(const YAML::Node& node);
+  Node transformMap(const YAML::Node& node);
+
+  std::istream* strm_ = nullptr;
+  StringPtr filename_;
+  ParseInfo parseinfo_;
   bool parse_scalars_ = true;
 }; // class YamlImport
 

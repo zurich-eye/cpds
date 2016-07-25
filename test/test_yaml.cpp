@@ -1,3 +1,4 @@
+#include <fstream>
 #include <gtest/gtest.h>
 #include "cpds/node.hpp"
 #include "cpds/yaml.hpp"
@@ -54,6 +55,21 @@ TEST(YAML, DefaultDataImport)
   Node node = yaml_import.load(str);
 
   EXPECT_EQ(ref_node, node);
+
+  // ensure the parse marks are properly placed
+  const ParseInfo& pi = yaml_import.parseinfo();
+  ParseMark mk = pi.getMark(node);
+  EXPECT_EQ(0, mk.line());
+  EXPECT_EQ(0, mk.position());
+  mk = pi.getMark(node["b"]);
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(3, mk.position());
+  mk = pi.getMark(node["c"]);
+  EXPECT_EQ(2, mk.line());
+  EXPECT_EQ(3, mk.position());
+  mk = pi.getMark(node["g"]["aa"]);
+  EXPECT_EQ(10, mk.line());
+  EXPECT_EQ(6, mk.position());
 }
 
 TEST(YAML, StringDataImport)
@@ -78,4 +94,42 @@ TEST(YAML, StringDataImport)
   Node node = yaml_import.load(str);
 
   EXPECT_EQ(ref_node, node);
+}
+
+TEST(YAML, FileImport)
+{
+  std::string str;
+  str = "a:\nb: true\nc: 25";
+  {
+    std::ofstream strm("/tmp/cpds.yaml");
+    strm << str;
+  }
+
+  YamlImport yaml_import;
+  Node node = yaml_import.loadFromFile("/tmp/cpds.yaml");
+
+  Node ref_node(Map({ { "a", Node() },
+                      { "b", true },
+                      { "c", 25 },
+                    }));
+
+  EXPECT_EQ(ref_node, node);
+
+  const ParseInfo& pi = yaml_import.parseinfo();
+  ParseMark mk = pi.getMark(node);
+  EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
+  EXPECT_EQ(0, mk.line());
+  EXPECT_EQ(0, mk.position());
+  mk = pi.getMark(node["a"]);
+  EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(0, mk.position());
+  mk = pi.getMark(node["b"]);
+  EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
+  EXPECT_EQ(1, mk.line());
+  EXPECT_EQ(3, mk.position());
+  mk = pi.getMark(node["c"]);
+  EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
+  EXPECT_EQ(2, mk.line());
+  EXPECT_EQ(3, mk.position());
 }
