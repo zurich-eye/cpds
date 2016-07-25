@@ -3,7 +3,7 @@
 
 using namespace cpds;
 
-TEST(ParseInfo, Default)
+TEST(ParseMark, Default)
 {
   ParseMark p1;
   ParseMark p2(2, 3);
