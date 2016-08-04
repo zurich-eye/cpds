@@ -79,12 +79,14 @@ set_source_files_properties(
 add_library(cpds ${CORE_FILES})
 set_target_properties(cpds PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
 set_target_properties(cpds PROPERTIES SOVERSION ${CPDS_VERSION})
+install(TARGETS cpds DESTINATION lib)
 
 if(WITH_JSON)
   add_library(cpds-json ${JSON_FILES})
   set_target_properties(cpds-json PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
   set_target_properties(cpds-json PROPERTIES SOVERSION ${CPDS_VERSION})
-    target_link_libraries(cpds-json cpds)
+  target_link_libraries(cpds-json cpds)
+  install(TARGETS cpds-json DESTINATION lib)
 endif()
 
 if(WITH_YAML)
@@ -92,7 +94,8 @@ if(WITH_YAML)
   target_include_directories(cpds-yaml PUBLIC ${YAMLCPP_INCLUDE_DIRS})
   set_target_properties(cpds-yaml PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
   set_target_properties(cpds-yaml PROPERTIES SOVERSION ${CPDS_VERSION})
-    target_link_libraries(cpds-yaml cpds ${YAMLCPP_LIBRARIES})
+  target_link_libraries(cpds-yaml cpds ${YAMLCPP_LIBRARIES})
+  install(TARGETS cpds-yaml DESTINATION lib)
 endif()
 
 if(BUILD_TESTS)
@@ -102,6 +105,11 @@ if(BUILD_TESTS)
   target_link_libraries(cpds-test ${GTEST_BOTH_LIBRARIES})
   target_link_libraries(cpds-test ${CMAKE_THREAD_LIBS_INIT})
 endif()
+
+install(DIRECTORY include/cpds/
+        DESTINATION include/cpds
+        FILES_MATCHING PATTERN "*.hpp"
+)
 
 message(STATUS "-----------------------------------------")
 message(STATUS "CMAKE_BUILD_TYPE  = ${CMAKE_BUILD_TYPE}")
