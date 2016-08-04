@@ -70,38 +70,38 @@ set(TEST_FILES
   test/test_parseinfo.cpp
 )
 
+set(BUILD_FILES ${CORE_FILES})
+if(WITH_JSON)
+  set(BUILD_FILES
+    ${BUILD_FILES}
+    ${JSON_FILES}
+  )
+endif()
+if(WITH_YAML)
+  set(BUILD_FILES
+    ${BUILD_FILES}
+    ${YAML_FILES}
+  )
+endif()
+
 set_source_files_properties(
   ${CORE_FILES} ${JSON_FILES} ${YAML_FILES}
   PROPERTIES COMPILE_FLAGS
   "-Werror -Wall -Wextra -pedantic -fno-common"
 )
 
-add_library(cpds ${CORE_FILES})
+add_library(cpds ${BUILD_FILES})
 set_target_properties(cpds PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
 set_target_properties(cpds PROPERTIES SOVERSION ${CPDS_VERSION})
-install(TARGETS cpds DESTINATION lib)
-
-if(WITH_JSON)
-  add_library(cpds-json ${JSON_FILES})
-  set_target_properties(cpds-json PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
-  set_target_properties(cpds-json PROPERTIES SOVERSION ${CPDS_VERSION})
-  target_link_libraries(cpds-json cpds)
-  install(TARGETS cpds-json DESTINATION lib)
-endif()
-
 if(WITH_YAML)
-  add_library(cpds-yaml ${YAML_FILES})
-  target_include_directories(cpds-yaml PUBLIC ${YAMLCPP_INCLUDE_DIRS})
-  set_target_properties(cpds-yaml PROPERTIES VERSION ${CPDS_MAJOR_VERSION})
-  set_target_properties(cpds-yaml PROPERTIES SOVERSION ${CPDS_VERSION})
-  target_link_libraries(cpds-yaml cpds ${YAMLCPP_LIBRARIES})
-  install(TARGETS cpds-yaml DESTINATION lib)
+  target_link_libraries(cpds ${YAMLCPP_LIBRARIES})
 endif()
+install(TARGETS cpds DESTINATION lib)
 
 if(BUILD_TESTS)
   add_executable(cpds-test ${TEST_FILES})
   target_include_directories(cpds-test PUBLIC ${GTEST_INCLUDE_DIRS})
-  target_link_libraries(cpds-test cpds cpds-json cpds-yaml)
+  target_link_libraries(cpds-test cpds)
   target_link_libraries(cpds-test ${GTEST_BOTH_LIBRARIES})
   target_link_libraries(cpds-test ${CMAKE_THREAD_LIBS_INIT})
 endif()
