@@ -260,10 +260,14 @@ TEST(Node, Map)
   EXPECT_THROW(node.sequence(), TypeException);
 
   EXPECT_EQ(1, node["z"].intValue());
+  EXPECT_EQ(1, node.at("z").intValue());
   EXPECT_TRUE(node["b"].boolValue());
+  EXPECT_TRUE(node.at("b").boolValue());
   EXPECT_DOUBLE_EQ(4.3, node["a"].floatValue());
+  EXPECT_DOUBLE_EQ(4.3, node.at("a").floatValue());
   EXPECT_EQ(Node(), node["f"]);
   EXPECT_EQ(Node(), node["zz"]);
+  EXPECT_THROW(node.at("aaa"), KeyException);
 
   EXPECT_EQ(5, node.size()); // elements "f" and "zz" were added
 

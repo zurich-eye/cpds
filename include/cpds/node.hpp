@@ -148,6 +148,14 @@ public:
   Node& operator[](String&& key);
 
   /**
+   * Children access for Maps. Throws for other types.
+   *
+   * Throws if no entry exists for key.
+   **/
+  Node& at(const String& key);
+  const Node& at(const String& key) const;
+
+  /**
    * Key lookup for Maps. Throws for other types.
    **/
   Map::iterator find(const String& key);

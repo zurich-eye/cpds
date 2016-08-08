@@ -319,6 +319,28 @@ Node& Node::operator[](String&& key)
   return m.insert(iter, std::make_pair(std::move(key), Node()))->second;
 }
 
+Node& Node::at(const String& key)
+{
+  Map::iterator iter = find(key);
+  if (iter == end())
+  {
+    throw KeyException();
+  }
+
+  return iter->second;
+}
+
+const Node& Node::at(const String& key) const
+{
+  Map::const_iterator iter = find(key);
+  if (iter == end())
+  {
+    throw KeyException();
+  }
+
+  return iter->second;
+}
+
 Map::iterator Node::find(const String& key)
 {
   Map& m = map();
