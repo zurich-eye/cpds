@@ -85,12 +85,17 @@ TypeException::TypeException(String msg)
 {
 }
 
+TypeException::TypeException(const Node& node)
+  : Exception("data type mismatch", node)
+{
+}
+
 //
 // OverflowException implementation
 //
 
 OverflowException::OverflowException()
-  : TypeException("narrowing from unsigned to signed generates overflow")
+  : TypeException(String("narrowing from unsigned to signed generates overflow"))
 {
 }
 

@@ -48,6 +48,7 @@ class TypeException : public Exception
 public:
   TypeException();
   TypeException(String msg);
+  TypeException(const Node& node);
 }; // class TypeException
 
 class OverflowException : public TypeException
