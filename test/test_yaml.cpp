@@ -60,16 +60,16 @@ TEST(YAML, DefaultDataImport)
   const ParseInfo& pi = yaml_import.parseinfo();
   ParseMark mk = pi.getMark(node);
   EXPECT_EQ(1, mk.line());
-  EXPECT_EQ(0, mk.position());
+  EXPECT_EQ(1, mk.position());
   mk = pi.getMark(node["b"]);
   EXPECT_EQ(2, mk.line());
-  EXPECT_EQ(3, mk.position());
+  EXPECT_EQ(4, mk.position());
   mk = pi.getMark(node["c"]);
   EXPECT_EQ(3, mk.line());
-  EXPECT_EQ(3, mk.position());
+  EXPECT_EQ(4, mk.position());
   mk = pi.getMark(node["g"]["aa"]);
   EXPECT_EQ(11, mk.line());
-  EXPECT_EQ(6, mk.position());
+  EXPECT_EQ(7, mk.position());
 }
 
 TEST(YAML, StringDataImport)
@@ -119,17 +119,17 @@ TEST(YAML, FileImport)
   ParseMark mk = pi.getMark(node);
   EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
   EXPECT_EQ(1, mk.line());
-  EXPECT_EQ(0, mk.position());
+  EXPECT_EQ(1, mk.position());
   mk = pi.getMark(node["a"]);
   EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
   EXPECT_EQ(2, mk.line());
-  EXPECT_EQ(0, mk.position());
+  EXPECT_EQ(1, mk.position());
   mk = pi.getMark(node["b"]);
   EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
   EXPECT_EQ(2, mk.line());
-  EXPECT_EQ(3, mk.position());
+  EXPECT_EQ(4, mk.position());
   mk = pi.getMark(node["c"]);
   EXPECT_EQ("/tmp/cpds.yaml", mk.filename());
   EXPECT_EQ(3, mk.line());
-  EXPECT_EQ(3, mk.position());
+  EXPECT_EQ(4, mk.position());
 }
