@@ -291,7 +291,7 @@ Node JsonImport::load(std::istream& strm, StringPtr filename)
     strm_ = &strm;
     filename_ = filename;
     line_ = 1;
-    pos_ = 0;
+    pos_ = 1;
     parseinfo_.clear();
   }
 
@@ -805,7 +805,7 @@ char JsonImport::read()
   if (c == '\n')
   {
     line_++;
-    pos_ = 0;
+    pos_ = 1;
   }
   return c;
 }

@@ -157,7 +157,7 @@ Node YamlImport::transform(const YAML::Node& node)
 {
   Node n = doTransform(node);
   const YAML::Mark mark = node.Mark();
-  ParseMark pm(filename_, mark.line, mark.column);
+  ParseMark pm(filename_, mark.line+1, mark.column+1);
   parseinfo_.insert(std::make_pair(n.id(), std::move(pm)));
   return n;
 }
