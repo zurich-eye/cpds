@@ -9,6 +9,7 @@
  */
 
 #include "cpds/exception.hpp"
+#include <limits>
 #include "cpds/node.hpp"
 #include "cpds/parseinfo.hpp"
 
