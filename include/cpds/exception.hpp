@@ -73,19 +73,19 @@ public:
 class ValidationException : public Exception
 {
 public:
-  ValidationException(String msg);
+  ValidationException(String msg, const Node& node);
 }; // class ValidationException
 
 class IntRangeException : public ValidationException
 {
 public:
-  IntRangeException(Int min, Int max, Int actual);
+  IntRangeException(Int min, Int max, Int actual, const Node& node);
 }; // class IntRangeException
 
 class FloatRangeException : public ValidationException
 {
 public:
-  FloatRangeException(Float min, Float max, Float actual);
+  FloatRangeException(Float min, Float max, Float actual, const Node& node);
 }; // class FloatRangeException
 
 std::ostream& operator<<(std::ostream& strm, const Exception& e);

@@ -133,16 +133,19 @@ ImportException::ImportException(String msg,
 // ValidationException implementation
 //
 
-ValidationException::ValidationException(String msg)
-  : Exception(std::move(msg))
+ValidationException::ValidationException(String msg, const Node& node)
+  : Exception(std::move(msg), node)
 {
 }
 
 //
 // IntRangeException implementation
 
-IntRangeException::IntRangeException(Int min, Int max, Int actual)
-  : ValidationException(buildIntRangeMsg(min, max, actual))
+IntRangeException::IntRangeException(Int min,
+                                     Int max,
+                                     Int actual,
+                                     const Node& node)
+  : ValidationException(buildIntRangeMsg(min, max, actual), node)
 {
 }
 
@@ -150,8 +153,11 @@ IntRangeException::IntRangeException(Int min, Int max, Int actual)
 // FloatRangeException implementation
 //
 
-FloatRangeException::FloatRangeException(Float min, Float max, Float actual)
-  : ValidationException(buildFloatRangeMsg(min, max, actual))
+FloatRangeException::FloatRangeException(Float min,
+                                         Float max,
+                                         Float actual,
+                                         const Node& node)
+  : ValidationException(buildFloatRangeMsg(min, max, actual), node)
 {
 }
 
