@@ -18,6 +18,7 @@ set(HEADERS
   include/cpds/typedefs.hpp
   include/cpds/node.hpp
   include/cpds/validator.hpp
+  include/cpds/parsemark.hpp
   include/cpds/parseinfo.hpp
   include/cpds/json.hpp
   include/cpds/yaml.hpp

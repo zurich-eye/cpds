@@ -393,7 +393,7 @@ void Node::merge(const Node& other)
 {
   if (type_ != other.type_)
   {
-    throw TypeException();
+    throw TypeException(other);
   }
 
   switch (type_)

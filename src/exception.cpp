@@ -9,6 +9,8 @@
  */
 
 #include "cpds/exception.hpp"
+#include "cpds/node.hpp"
+#include "cpds/parseinfo.hpp"
 
 namespace cpds {
 
@@ -39,63 +41,140 @@ String buildFloatRangeMsg(Float min, Float max, Float actual)
 
 } // unnamed namespace
 
-const char* TypeException::what() const noexcept
-{
-  return "data type mismatch.";
-}
+//
+// Exception implementation
+//
 
-const char* OverflowException::what() const noexcept
-{
-  return "narrowing from unsigned to signed generates overflow";
-}
-
-const char* KeyException::what() const noexcept
-{
-  return "key not found in sequence or map.";
-}
-
-ImportException::ImportException(unsigned line,
-                                 unsigned pos)
-  : ImportException(line, pos, "invalid data format")
-{
-}
-
-ImportException::ImportException(unsigned line,
-                                 unsigned pos,
-                                 const char* const msg)
-  : msg_()
-{
-  msg_ += "line ";
-  msg_ += std::to_string(line);
-  msg_ += ", position ";
-  msg_ += std::to_string(pos);
-  msg_ += ": ";
-  msg_ += msg;
-}
-
-const char* ImportException::what() const noexcept
-{
-  return msg_.c_str();
-}
-
-ValidationException::ValidationException(String msg)
+Exception::Exception(String msg)
   : msg_(std::move(msg))
+  , node_id_(std::numeric_limits<uint32_t>::max())
+  , parsemark_()
 {
 }
 
-const char* ValidationException::what() const noexcept
+Exception::Exception(String msg, const Node& node)
+  : msg_(std::move(msg))
+  , node_id_(node.id())
+  , parsemark_()
+{
+}
+
+Exception::Exception(String msg, StringPtr filename, int line, int pos)
+  : msg_(std::move(msg))
+  , node_id_(std::numeric_limits<uint32_t>::max())
+  , parsemark_(std::move(filename), line, pos)
+{
+}
+
+const char* Exception::what() const noexcept
 {
   return msg_.c_str();
 }
 
-IntRangeException::IntRangeException(Int min, Int max, Int actual)
-  : ValidationException(buildIntRangeMsg(min, max, actual))
+//
+// TypeException implementation
+//
+
+TypeException::TypeException()
+  : Exception("data type mismatch")
 {
 }
 
-FloatRangeException::FloatRangeException(Float min, Float max, Float actual)
-  : ValidationException(buildFloatRangeMsg(min, max, actual))
+TypeException::TypeException(String msg)
+  : Exception(std::move(msg))
 {
+}
+
+TypeException::TypeException(const Node& node)
+  : Exception("data type mismatch", node)
+{
+}
+
+//
+// OverflowException implementation
+//
+
+OverflowException::OverflowException()
+  : TypeException(String("narrowing from unsigned to signed generates overflow"))
+{
+}
+
+//
+// KeyException implementation
+//
+
+KeyException::KeyException()
+  : Exception("key not found in sequence or map")
+{
+}
+
+//
+// ImportException implementation
+//
+
+ImportException::ImportException(StringPtr filename,
+                                 unsigned line,
+                                 unsigned pos)
+  : Exception("invalid data format", std::move(filename), line, pos)
+{
+}
+
+ImportException::ImportException(String msg,
+                                 StringPtr filename,
+                                 unsigned line,
+                                 unsigned pos)
+  : Exception(std::move(msg),
+              std::move(filename),
+              line, pos)
+{
+}
+
+//
+// ValidationException implementation
+//
+
+ValidationException::ValidationException(String msg, const Node& node)
+  : Exception(std::move(msg), node)
+{
+}
+
+//
+// IntRangeException implementation
+
+IntRangeException::IntRangeException(Int min,
+                                     Int max,
+                                     Int actual,
+                                     const Node& node)
+  : ValidationException(buildIntRangeMsg(min, max, actual), node)
+{
+}
+
+//
+// FloatRangeException implementation
+//
+
+FloatRangeException::FloatRangeException(Float min,
+                                         Float max,
+                                         Float actual,
+                                         const Node& node)
+  : ValidationException(buildFloatRangeMsg(min, max, actual), node)
+{
+}
+
+//
+// Misc.
+//
+
+std::ostream& operator<<(std::ostream& strm, const Exception& e)
+{
+  strm << e.message();
+  if (e.hasParseMark())
+  {
+    strm << ", file '" << e.filename() << "'";
+    strm << ", line " << e.line();
+    strm << ", position " << e.position();
+  }
+  return strm;
 }
 
 } // namespace cpds

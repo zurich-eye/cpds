@@ -8,6 +8,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+#include "cpds/parsemark.hpp"
 #include "cpds/parseinfo.hpp"
 #include "cpds/node.hpp"
 
@@ -31,9 +32,24 @@ const String& ParseMark::filename() const
 // ParseInfo implementation
 //
 
+bool ParseInfo::hasMark(const Node& node) const
+{
+  return hasMark(node.id());
+}
+
+bool ParseInfo::hasMark(uint32_t node_id) const
+{
+  return (find(node_id) != end());
+}
+
 const ParseMark& ParseInfo::getMark(const Node& node) const
 {
-  return at(node.id());
+  return getMark(node.id());
+}
+
+const ParseMark& ParseInfo::getMark(uint32_t node_id) const
+{
+  return at(node_id);
 }
 
 } // namespace cpds

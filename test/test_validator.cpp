@@ -12,7 +12,7 @@ void evenInt(const Node& node, const Validator& validator)
   Int val = node.intValue();
   if (val % 2 != 0)
   {
-    throw ValidationException("number is not even");
+    throw ValidationException("number is not even", node);
   }
 }
 
@@ -21,7 +21,7 @@ void oddInt(const Node& node, const Validator& validator)
   Int val = node.intValue();
   if (val % 2 == 0)
   {
-    throw ValidationException("number is not odd");
+    throw ValidationException("number is not odd", node);
   }
 }
 
@@ -30,7 +30,7 @@ void positiveFloat(const Node& node, const Validator& validator)
   Float val = node.floatValue();
   if (val < 0.0)
   {
-    throw ValidationException("value is negative");
+    throw ValidationException("value is negative", node);
   }
 }
 
@@ -39,7 +39,7 @@ void negativeFloat(const Node& node, const Validator& validator)
   Float val = node.floatValue();
   if (val > 0.0)
   {
-    throw ValidationException("value is positive");
+    throw ValidationException("value is positive", node);
   }
 }
 
@@ -48,7 +48,7 @@ void isEmptyString(const Node& node, const Validator& validator)
   const String& val = node.stringValue();
   if (!val.empty())
   {
-    throw ValidationException("string not empty");
+    throw ValidationException("string not empty", node);
   }
 }
 
@@ -57,7 +57,7 @@ void isNonEmptyString(const Node& node, const Validator& validator)
   const String& val = node.stringValue();
   if (val.empty())
   {
-    throw ValidationException("string empty");
+    throw ValidationException("string empty", node);
   }
 }
 
@@ -67,13 +67,13 @@ void threeIntegers(const Node& node, const Validator& /*validator*/)
 
   if (seq.size() != 3)
   {
-    throw ValidationException("wrong size");
+    throw ValidationException("wrong size", node);
   }
   for (const Node& child : seq)
   {
     if (child.type() != NodeType::Integer)
     {
-      throw ValidationException("wrong child type");
+      throw ValidationException("wrong child type", child);
     }
   }
 }

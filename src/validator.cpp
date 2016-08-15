@@ -39,7 +39,7 @@ void vIntRange(const Node& node,
   Int val = node.intValue();
   if (val < range.first || val > range.second)
   {
-    throw IntRangeException(range.first, range.second, val);
+    throw IntRangeException(range.first, range.second, val, node);
   }
 }
 
@@ -51,7 +51,7 @@ void vFloatRange(const Node& node,
   Float val = node.floatValue();
   if (val < range.first || val > range.second)
   {
-    throw FloatRangeException(range.first, range.second, val);
+    throw FloatRangeException(range.first, range.second, val, node);
   }
 }
 
@@ -84,7 +84,7 @@ void vSequence(const Node& node,
 
     if (!success)
     {
-      throw ValidationException("sequence child failed to validate");
+      throw ValidationException("sequence child failed to validate", child);
     }
   }
 }
@@ -111,7 +111,7 @@ void vMap(const Node& node,
 
   if (enabled == false)
   {
-    throw ValidationException("map does not match any validation group");
+    throw ValidationException("map does not match any validation group", node);
   }
 }
 
@@ -235,7 +235,7 @@ const IntRange& Validator::intRange() const
   checkType(NodeType::Integer);
   if (aux_data_.int_range_ == nullptr)
   {
-    throw TypeException();
+    throw TypeException(String("API error: missing integer range"));
   }
   return *aux_data_.int_range_;
 }
@@ -245,7 +245,7 @@ const FloatRange& Validator::floatRange() const
   checkType(NodeType::FloatingPoint);
   if (aux_data_.float_range_ == nullptr)
   {
-    throw TypeException();
+    throw TypeException(String("API error: missing float range"));
   }
   return *aux_data_.float_range_;
 }
@@ -273,7 +273,7 @@ void Validator::checkType(NodeType type) const
 {
   if (type_ != type)
   {
-    throw TypeException();
+    throw TypeException(String("API error: validator type mismatch"));
   }
 }
 
@@ -412,7 +412,7 @@ void MapEntryType::validate(const Node& node) const
     {
       return;
     }
-    throw ValidationException("required key not present");
+    throw ValidationException("required key not present", node);
   }
   validator_.validate(iter->second);
 }
@@ -469,7 +469,7 @@ void MapGroup::validate(const Node& node) const
 
     if (!found)
     {
-      throw ValidationException("extra key present in map");
+      throw ValidationException("extra key present in map", node);
     }
 
   } // map loop
