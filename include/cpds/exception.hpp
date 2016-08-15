@@ -23,7 +23,7 @@ class Node;
 class Exception : public std::exception
 {
 public:
-  Exception(String msg);
+  explicit Exception(String msg);
   Exception(String msg, const Node& node);
   Exception(String msg, StringPtr filename, int line, int pos);
   virtual const char* what() const noexcept override;
@@ -47,8 +47,8 @@ class TypeException : public Exception
 {
 public:
   TypeException();
-  TypeException(String msg);
-  TypeException(const Node& node);
+  explicit TypeException(String msg);
+  explicit TypeException(const Node& node);
 }; // class TypeException
 
 class OverflowException : public TypeException
