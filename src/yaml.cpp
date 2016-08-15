@@ -149,7 +149,7 @@ Node YamlImport::load(std::istream &strm, StringPtr filename)
   }
   catch (YAML::Exception& e)
   {
-    throw ImportException(0, 0);
+    throw ImportException(nullptr, 0, 0);
   }
 }
 

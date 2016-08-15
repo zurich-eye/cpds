@@ -45,6 +45,7 @@ set(CORE_FILES
   include/cpds/typedefs.hpp
   include/cpds/node.hpp
   include/cpds/validator.hpp
+  include/cpds/parsemark.hpp
   include/cpds/parseinfo.hpp
   src/exception.cpp
   src/node.cpp
@@ -63,6 +64,7 @@ set(YAML_FILES
 )
 
 set(TEST_FILES
+  test/test_exception.cpp
   test/test_node.cpp
   test/test_json.cpp
   test/test_yaml.cpp

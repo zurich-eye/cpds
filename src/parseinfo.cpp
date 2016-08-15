@@ -8,6 +8,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+#include "cpds/parsemark.hpp"
 #include "cpds/parseinfo.hpp"
 #include "cpds/node.hpp"
 

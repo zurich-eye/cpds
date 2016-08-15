@@ -835,12 +835,12 @@ inline void JsonImport::registerNode(const Node& node, ParseMark&& mark)
 
 inline void JsonImport::raise() const
 {
-  throw ImportException(line_, pos_, "JSON syntax error");
+  throw ImportException("JSON syntax error", filename_, line_, pos_);
 }
 
 inline void JsonImport::raise(const char *msg) const
 {
-  throw ImportException(line_, pos_, msg);
+  throw ImportException(msg, filename_, line_, pos_);
 }
 
 } // namespace cpds
