@@ -21,7 +21,10 @@ namespace cpds {
 class ParseInfo : public std::map<int, ParseMark>
 {
 public:
+  bool hasMark(const Node& node) const;
+  bool hasMark(uint32_t node_id) const;
   const ParseMark& getMark(const Node& node) const;
+  const ParseMark& getMark(uint32_t node_id) const;
 }; // class ParseInfo
 
 } // namespace cpds
