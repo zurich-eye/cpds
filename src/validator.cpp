@@ -19,10 +19,14 @@ namespace cpds {
 // enforce local linkage
 namespace {
 
-// accepts all nodes
-void vAlways(const Node& /*node*/,
-             const Validator& /*validator*/)
+// accepts nodes that match the type
+void vType(const Node& node,
+           const Validator& validator)
 {
+  if (node.type() != validator.type())
+  {
+    throw TypeException(node);
+  }
 }
 
 // accepts all maps
@@ -226,7 +230,6 @@ Validator::~Validator()
 
 void Validator::validate(const Node& node) const
 {
-  checkType(node.type());
   fcn_(node, *this);
 }
 
@@ -282,7 +285,7 @@ void Validator::checkType(NodeType type) const
 //
 
 NullType::NullType()
-  : Validator(NodeType::Null, vAlways)
+  : Validator(NodeType::Null, vType)
 {
 }
 
@@ -291,7 +294,7 @@ NullType::NullType()
 //
 
 BooleanType::BooleanType()
-  : Validator(NodeType::Boolean, vAlways)
+  : Validator(NodeType::Boolean, vType)
 {
 }
 
@@ -300,7 +303,7 @@ BooleanType::BooleanType()
 //
 
 IntegerType::IntegerType()
-  : Validator(NodeType::Integer, vAlways)
+  : Validator(NodeType::Integer, vType)
 {
 }
 
@@ -319,7 +322,7 @@ IntegerType::IntegerType(ValidationFcn validation_fcn)
 //
 
 FloatingPointType::FloatingPointType()
-  : Validator(NodeType::FloatingPoint, vAlways)
+  : Validator(NodeType::FloatingPoint, vType)
 {
 }
 
@@ -338,7 +341,7 @@ FloatingPointType::FloatingPointType(ValidationFcn validation_fcn)
 //
 
 StringType::StringType()
-  : Validator(NodeType::String, vAlways)
+  : Validator(NodeType::String, vType)
 {
 }
 
