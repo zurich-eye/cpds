@@ -283,6 +283,18 @@ TEST(Validator, FloatingPoint)
   EXPECT_THROW(v4.validate(node2), ValidationException);
   EXPECT_NO_THROW(v5.validate(node2));
   EXPECT_THROW(v6.validate(node2), TypeException);
+
+  // distinguish between strict and relaxed checking
+  v1 = FloatingPointType(0.0, 20.0, true);
+  v2 = FloatingPointType(0.0, 20.0, false);
+
+  node1 = 15.0;
+  node2 = 15;
+
+  EXPECT_NO_THROW(v1.validate(node1));
+  EXPECT_THROW(v1.validate(node2), TypeException);
+  EXPECT_NO_THROW(v2.validate(node1));
+  EXPECT_NO_THROW(v2.validate(node2));
 }
 
 TEST(Validator, String)
