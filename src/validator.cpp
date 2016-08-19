@@ -477,7 +477,10 @@ void MapGroup::validate(const Node& node) const
 
     if (!found)
     {
-      throw ValidationException("extra key present in map", node);
+      String msg("extra key '");
+      msg += key;
+      msg += ("' present in map");
+      throw ValidationException(msg, node);
     }
 
   } // map loop
