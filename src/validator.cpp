@@ -298,6 +298,11 @@ BooleanType::BooleanType()
 {
 }
 
+BooleanType::BooleanType(ValidationFcn validation_fcn)
+  : Validator(NodeType::Boolean, validation_fcn)
+{
+}
+
 //
 // IntegerType implementation
 //

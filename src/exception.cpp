@@ -18,6 +18,14 @@ namespace cpds {
 // enforce local linkage
 namespace {
 
+String buildKeyMsg(const String& key)
+{
+  String msg("key '");
+  msg += key;
+  msg += "' not found in sequence or map";
+  return msg;
+}
+
 String buildIntRangeMsg(Int min, Int max, Int actual)
 {
   String msg("value out of bounds: range [");
@@ -86,6 +94,11 @@ TypeException::TypeException(String msg)
 {
 }
 
+TypeException::TypeException(const char* msg)
+  : TypeException(String(msg))
+{
+}
+
 TypeException::TypeException(const Node& node)
   : Exception("data type mismatch", node)
 {
@@ -96,7 +109,7 @@ TypeException::TypeException(const Node& node)
 //
 
 OverflowException::OverflowException()
-  : TypeException(String("narrowing from unsigned to signed generates overflow"))
+  : TypeException("narrowing from unsigned to signed generates overflow")
 {
 }
 
@@ -104,8 +117,8 @@ OverflowException::OverflowException()
 // KeyException implementation
 //
 
-KeyException::KeyException()
-  : Exception("key not found in sequence or map")
+KeyException::KeyException(const String& key, const Node& node)
+  : Exception(buildKeyMsg(key), node)
 {
 }
 

@@ -34,6 +34,28 @@ struct MapCompare
   }
 }; // struct MapCompare
 
+inline void prepareMap(Map& map)
+{
+  if (map.empty())
+  {
+    return;
+  }
+
+  // the external input is not necessarily sorted
+  std::sort(map.begin(), map.end(), MapCompare());
+
+  for (std::size_t i = 0; i < map.size()-1; ++i)
+  {
+    if (map[i].first == map[i+1].first)
+    {
+      String msg("key '");
+      msg += map[i].first;
+      msg += "' exists more than once in initialization data";
+      throw Exception(msg);
+    }
+  }
+}
+
 } // unnamed namespace
 
 Node::Node(const Node& other)
@@ -118,8 +140,7 @@ Node::Node(const Map& value)
 {
   storage_.map_ = new Map(value);
 
-  // the external input is not necessarily sorted
-  std::sort(_map().begin(), _map().end(), MapCompare());
+  prepareMap(*storage_.map_);
 }
 
 Node::Node(Map&& value)
@@ -129,8 +150,7 @@ Node::Node(Map&& value)
 {
   storage_.map_ = new Map(std::move(value));
 
-  // the external input is not necessarily sorted
-  std::sort(_map().begin(), _map().end(), MapCompare());
+  prepareMap(*storage_.map_);
 }
 
 Node::~Node() noexcept
@@ -256,7 +276,7 @@ Node& Node::operator[](std::size_t index)
   Sequence& seq = sequence();
   if (index >= seq.size())
   {
-    throw KeyException();
+    throw KeyException(std::to_string(index), *this);
   }
 
   return seq[index];
@@ -267,7 +287,7 @@ const Node& Node::operator[](std::size_t index) const
   const Sequence& seq = sequence();
   if (index >= seq.size())
   {
-    throw KeyException();
+    throw KeyException(std::to_string(index), *this);
   }
 
   return seq[index];
@@ -324,7 +344,7 @@ Node& Node::at(const String& key)
   Map::iterator iter = find(key);
   if (iter == end())
   {
-    throw KeyException();
+    throw KeyException(key, *this);
   }
 
   return iter->second;
@@ -335,7 +355,7 @@ const Node& Node::at(const String& key) const
   Map::const_iterator iter = find(key);
   if (iter == end())
   {
-    throw KeyException();
+    throw KeyException(key, *this);
   }
 
   return iter->second;

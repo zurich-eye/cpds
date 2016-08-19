@@ -7,6 +7,15 @@ using namespace cpds;
 
 namespace {
 
+void trueBool(const Node& node, const Validator& validator)
+{
+  bool val = node.boolValue();
+  if (val == false)
+  {
+    throw ValidationException("boolean is not false", node);
+  }
+}
+
 void evenInt(const Node& node, const Validator& validator)
 {
   Int val = node.intValue();
@@ -212,9 +221,14 @@ TEST(Validator, Boolean)
 
   Validator v1 = BooleanType();
   Validator v2 = IntegerType();
+  Validator v3 = BooleanType(trueBool);
 
   EXPECT_NO_THROW(v1.validate(node));
   EXPECT_THROW(v2.validate(node), TypeException);
+
+  EXPECT_THROW(v3.validate(node), ValidationException);
+  node = true;
+  EXPECT_NO_THROW(v3.validate(node));
 }
 
 TEST(Validator, Integer)

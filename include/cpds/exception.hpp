@@ -48,6 +48,7 @@ class TypeException : public Exception
 public:
   TypeException();
   explicit TypeException(String msg);
+  explicit TypeException(const char* msg);
   explicit TypeException(const Node& node);
 }; // class TypeException
 
@@ -60,7 +61,7 @@ public:
 class KeyException : public Exception
 {
 public:
-  KeyException();
+  KeyException(const String& key, const Node& node);
 }; // class KeyException
 
 class ImportException : public Exception
