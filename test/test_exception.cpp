@@ -68,8 +68,8 @@ TEST(Exception, OtherExceptions)
   EXPECT_EQ("narrowing from unsigned to signed generates overflow",
             oe.message());
 
-  KeyException ke;
-  EXPECT_EQ("key not found in sequence or map", ke.message());
+  KeyException ke("ab", n);
+  EXPECT_EQ("key 'ab' not found in sequence or map", ke.message());
 
   ImportException ie(std::make_shared<String>("tf"), 3, 5);
   EXPECT_EQ("invalid data format", ie.message());

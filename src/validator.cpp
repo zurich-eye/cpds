@@ -238,7 +238,7 @@ const IntRange& Validator::intRange() const
   checkType(NodeType::Integer);
   if (aux_data_.int_range_ == nullptr)
   {
-    throw TypeException(String("API error: missing integer range"));
+    throw TypeException("API error: missing integer range");
   }
   return *aux_data_.int_range_;
 }
@@ -248,7 +248,7 @@ const FloatRange& Validator::floatRange() const
   checkType(NodeType::FloatingPoint);
   if (aux_data_.float_range_ == nullptr)
   {
-    throw TypeException(String("API error: missing float range"));
+    throw TypeException("API error: missing float range");
   }
   return *aux_data_.float_range_;
 }
@@ -276,7 +276,7 @@ void Validator::checkType(NodeType type) const
 {
   if (type_ != type)
   {
-    throw TypeException(String("API error: validator type mismatch"));
+    throw TypeException("API error: validator type mismatch");
   }
 }
 
@@ -295,6 +295,11 @@ NullType::NullType()
 
 BooleanType::BooleanType()
   : Validator(NodeType::Boolean, vType)
+{
+}
+
+BooleanType::BooleanType(ValidationFcn validation_fcn)
+  : Validator(NodeType::Boolean, validation_fcn)
 {
 }
 

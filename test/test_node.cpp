@@ -286,6 +286,9 @@ TEST(Node, Map)
   EXPECT_FALSE(node.find("f") == node.end());
   EXPECT_FALSE(node.find("z") == node.end());
   EXPECT_FALSE(node.find("zz") == node.end());
+
+  // duplicate key
+  EXPECT_THROW(Node n = Map({ {"z", 1}, {"z",  true} }), Exception);
 }
 
 TEST(Node, CustomStruct)

@@ -46,7 +46,8 @@ typedef void (*ValidationFcn)(const Node& node,
 
 /**
  * The group enable function shall return whether the map group is valid
- * for the given node. Exceptions are treated as returning false.
+ * for the given node.
+ * Exceptions are considered a fatal error like a failing test in a validator.
  **/
 typedef bool (*GroupEnableFcn)(const Node& node);
 
@@ -113,6 +114,7 @@ class BooleanType : public Validator
 {
 public:
   BooleanType();
+  BooleanType(ValidationFcn validation_fcn);
   ~BooleanType() = default;
 }; // class BooleanType
 
