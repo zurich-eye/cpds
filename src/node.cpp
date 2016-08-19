@@ -188,7 +188,7 @@ bool Node::boolValue() const
 {
   if (type_ != NodeType::Boolean)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _bool();
 }
@@ -197,7 +197,7 @@ Int Node::intValue() const
 {
   if (type_ != NodeType::Integer)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _int();
 }
@@ -206,7 +206,7 @@ Float Node::floatValue() const
 {
   if (type_ != NodeType::FloatingPoint)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _float();
 }
@@ -215,7 +215,7 @@ const String& Node::stringValue() const
 {
   if (type_ != NodeType::String)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _string();
 }
@@ -233,7 +233,7 @@ bool Node::asBool() const
   case NodeType::FloatingPoint:
     return (_float() != 0.0) ? true : false;
   default:
-    throw TypeException();
+    throw TypeException(*this);
   }
 }
 
@@ -250,7 +250,7 @@ Int Node::asInt() const
   case NodeType::FloatingPoint:
     return _float();
   default:
-    throw TypeException();
+    throw TypeException(*this);
   }
 }
 
@@ -267,7 +267,7 @@ Float Node::asFloat() const
   case NodeType::FloatingPoint:
     return _float();
   default:
-    throw TypeException();
+    throw TypeException(*this);
   }
 }
 
@@ -297,7 +297,7 @@ Sequence& Node::sequence()
 {
   if (type_ != NodeType::Sequence)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _sequence();
 }
@@ -306,7 +306,7 @@ const Sequence& Node::sequence() const
 {
   if (type_ != NodeType::Sequence)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _sequence();
 }
@@ -442,7 +442,7 @@ const Map& Node::map() const
 {
   if (type_ != NodeType::Map)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
 
   return _map();
@@ -452,7 +452,7 @@ Map& Node::map()
 {
   if (type_ != NodeType::Map)
   {
-    throw TypeException();
+    throw TypeException(*this);
   }
   return _map();
 }
