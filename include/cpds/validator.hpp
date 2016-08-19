@@ -65,7 +65,7 @@ class Validator
 protected:
   Validator(NodeType type, ValidationFcn validation_fcn);
   Validator(IntRange int_range);
-  Validator(FloatRange float_range);
+  Validator(FloatRange float_range, ValidationFcn validation_fcn);
   Validator(ValidatorVector seq_validators);
   Validator(MapGroupVector map_groups);
 public:
@@ -134,7 +134,7 @@ class FloatingPointType : public Validator
 {
 public:
   FloatingPointType();
-  FloatingPointType(Float min, Float max); // min and max are inclusive
+  FloatingPointType(Float min, Float max, bool strict=true); // min and max are inclusive
   explicit FloatingPointType(ValidationFcn validation_fcn);
   ~FloatingPointType() = default;
 }; // class FloatingPointType
