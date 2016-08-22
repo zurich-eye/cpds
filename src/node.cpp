@@ -244,7 +244,7 @@ Int Node::asInt() const
   case NodeType::Null:
     return 0;
   case NodeType::Boolean:
-    return 0;
+    return (_bool() ? 1 : 0);
   case NodeType::Integer:
     return _int();
   case NodeType::FloatingPoint:
@@ -261,7 +261,7 @@ Float Node::asFloat() const
   case NodeType::Null:
     return 0.0;
   case NodeType::Boolean:
-    return 0.0;
+    return (_bool() ? 1.0 : 0.0);
   case NodeType::Integer:
     return _int();
   case NodeType::FloatingPoint:

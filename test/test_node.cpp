@@ -88,6 +88,10 @@ TEST(Node, Bool)
 
   EXPECT_THROW(node[0], TypeException);
   EXPECT_THROW(node["test"], TypeException);
+
+  node = true;
+  EXPECT_EQ(1, node.asInt());
+  EXPECT_DOUBLE_EQ(1.0, node.asFloat());
 }
 
 TEST(Node, Int)
