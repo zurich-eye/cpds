@@ -43,6 +43,7 @@ TEST(Node, Null)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -71,6 +72,7 @@ TEST(Node, Bool)
   EXPECT_TRUE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -103,6 +105,7 @@ TEST(Node, Int)
   EXPECT_FALSE(node.isBool());
   EXPECT_TRUE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_TRUE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -151,6 +154,7 @@ TEST(Node, Float)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_TRUE(node.isFloat());
+  EXPECT_TRUE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -179,6 +183,7 @@ TEST(Node, String)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_TRUE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -208,6 +213,7 @@ TEST(Node, Sequence)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_TRUE(node.isSequence());
   EXPECT_FALSE(node.isMap());
@@ -245,6 +251,7 @@ TEST(Node, Map)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
   EXPECT_FALSE(node.isSequence());
   EXPECT_TRUE(node.isMap());

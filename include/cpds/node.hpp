@@ -66,6 +66,7 @@ public:
   bool isBool() const { return type_ == NodeType::Boolean; }
   bool isInt() const { return type_ == NodeType::Integer; }
   bool isFloat() const { return type_ == NodeType::FloatingPoint; }
+  bool isNumber() const { return (isInt() || isFloat()); }
   bool isString() const { return type_ == NodeType::String; }
   bool isSequence() const { return type_ == NodeType::Sequence; }
   bool isMap() const { return type_ == NodeType::Map; }
