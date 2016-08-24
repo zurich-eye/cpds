@@ -70,7 +70,7 @@ public:
   bool isFloat() const { return type_ == NodeType::FloatingPoint; }
   bool isNumber() const { return (isInt() || isFloat()); }
   bool isString() const { return type_ == NodeType::String; }
-  bool isScalar() const { return type_ == NodeType::Scalar; }
+  bool isScalar() const;
   bool isSequence() const { return type_ == NodeType::Sequence; }
   bool isMap() const { return type_ == NodeType::Map; }
   //@} // Type Information
@@ -339,6 +339,19 @@ template <typename T>
 T Node::as() const
 {
   return custom_converter<T>::transform(*this);
+}
+
+inline bool Node::isScalar() const
+{
+  switch (type_)
+  {
+  case NodeType::Null:
+  case NodeType::Sequence:
+  case NodeType::Map:
+    return false;
+  default:
+    return true;
+  }
 }
 
 inline uint32_t Node::_nextId() const
