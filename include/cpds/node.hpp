@@ -37,6 +37,8 @@ public:
   Node(const char* value); // needed or the bool constructor would be used
   Node(const String& value);
   Node(String&& value);
+  static Node fromScalar(const String& value);
+  static Node fromScalar(String&& value);
   Node(const Sequence& value);
   Node(Sequence&& value);
   Node(const Map& value);
@@ -68,6 +70,7 @@ public:
   bool isFloat() const { return type_ == NodeType::FloatingPoint; }
   bool isNumber() const { return (isInt() || isFloat()); }
   bool isString() const { return type_ == NodeType::String; }
+  bool isScalar() const { return type_ == NodeType::Scalar; }
   bool isSequence() const { return type_ == NodeType::Sequence; }
   bool isMap() const { return type_ == NodeType::Map; }
   //@} // Type Information
@@ -85,43 +88,33 @@ public:
   bool empty() const noexcept { return (size() == 0); }
 
   /**
-   * Throws if the data type is not Boolean
+   * Throws if the data type is not Boolean and not Scalar.
+   * Throws if the scalar cannot be converted to a boolean.
    **/
   bool boolValue() const;
 
   /**
-   * Throws if the data type is not Integer
+   * Throws if the data type is not Integer and not Scalar.
+   * Throws if the scalar cannot be converted to an Integer.
    **/
   Int intValue() const;
 
   /**
-   * Throws if the data type is not FloatingPoint
+   * Throws if the data type is not Integer, FloatingPoint, or Scalar.
+   * Throws if the integer cannot be represented by a floating point number.
+   * Throws if the scalar cannot be converted to a floating point.
    **/
   Float floatValue() const;
 
   /**
-   * Throws if the data type is not String
+   * Throws if the data type is not String and not Scalar.
    **/
   const String& stringValue() const;
 
   /**
-   * Transforms the data to a boolean, possibly losing precision.
-   * Throws if the type is String, Sequence or Map
+   * Allows the extraction of complex data types directly from a parent node.
+   * See the associated examples.
    **/
-  bool asBool() const;
-
-  /**
-   * Transforms the data to an integer, possibly losing precision.
-   * Throws if the type is String, Sequence or Map.
-   **/
-  Int asInt() const;
-
-  /**
-   * Transforms the data to a float, possibly losing precision.
-   * Throws if the type is String, Sequence or Map.
-   **/
-  Float asFloat() const;
-
   template <typename T>
   T as() const;
 

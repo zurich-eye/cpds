@@ -54,6 +54,7 @@ void YamlExport::dumpNode(YAML::Emitter& emitter, const Node& node) const
     dumpFloat(emitter, node);
     break;
   case NodeType::String:
+  case NodeType::Scalar:
     emitter << node.stringValue();
     break;
   case NodeType::Sequence:

@@ -18,6 +18,17 @@ namespace cpds {
 // enforce local linkage
 namespace {
 
+constexpr Int k_max_float_int = (1ull<<53);
+constexpr Int k_min_float_int = -k_max_float_int;
+
+// check for non-representable integers in IEEE754
+static_assert(static_cast<double>(k_max_float_int+0) ==
+              static_cast<double>(k_max_float_int+1),
+              "this platform does not use IEEE754 floating point numbers");
+static_assert(static_cast<double>(k_min_float_int+0) ==
+              static_cast<double>(k_min_float_int-1),
+              "this platform does not use IEEE754 floating point numbers");
+
 struct MapCompare
 {
   bool operator()(const MapEntry& a, const MapEntry& b) const
@@ -67,6 +78,7 @@ Node::Node(const Node& other)
   switch (type_)
   {
   case NodeType::String:
+  case NodeType::Scalar:
     storage_.str_ = new String(other._string());
     break;
   case NodeType::Sequence:
@@ -117,6 +129,22 @@ Node::Node(String&& value)
   storage_.str_ = new String(std::move(value));
 }
 
+Node Node::fromScalar(const String& value)
+{
+  Node node;
+  node.type_ = NodeType::Scalar;
+  node.storage_.str_ = new String(value);
+  return node;
+}
+
+Node Node::fromScalar(String&& value)
+{
+  Node node;
+  node.type_ = NodeType::Scalar;
+  node.storage_.str_ = new String(std::move(value));
+  return node;
+}
+
 Node::Node(const Sequence& value)
   : type_(NodeType::Sequence)
   , id_(_nextId())
@@ -158,6 +186,7 @@ Node::~Node() noexcept
   switch (type_)
   {
   case NodeType::String:
+  case NodeType::Scalar:
     delete storage_.str_;
     break;
   case NodeType::Sequence:
@@ -186,89 +215,95 @@ std::size_t Node::size() const noexcept
 
 bool Node::boolValue() const
 {
-  if (type_ != NodeType::Boolean)
+  if (type_ == NodeType::Boolean)
   {
-    throw TypeException(*this);
+    return _bool();
   }
-  return _bool();
+  else if (type_ == NodeType::Scalar)
+  {
+    const String& val = _string();
+    if (val == "true")
+    {
+      return true;
+    }
+    else if (val == "false")
+    {
+      return false;
+    }
+  }
+  throw TypeException(*this);
 }
 
 Int Node::intValue() const
 {
-  if (type_ != NodeType::Integer)
+  if (type_ == NodeType::Integer)
   {
-    throw TypeException(*this);
+    return _int();
   }
-  return _int();
+  else if (type_ == NodeType::Scalar)
+  {
+    try
+    {
+      std::size_t pos = 0;
+      const String& str = _string();
+      Int val = std::stoll(str, &pos, 10);
+      if (pos == str.size())
+      {
+        return val;
+      }
+    }
+    catch (const std::exception& e)
+    {
+      // will be handled below
+    }
+  }
+  throw TypeException(*this);
 }
 
 Float Node::floatValue() const
 {
-  if (type_ != NodeType::FloatingPoint)
+  // transform integers to floats unless they are outside the range where
+  // are guaranteed to be representable
+  if (type_ == NodeType::FloatingPoint)
   {
-    throw TypeException(*this);
+    return _float();
   }
-  return _float();
+  else if (type_ == NodeType::Integer)
+  {
+    Int val = _int();
+    if (val >= k_min_float_int && val <= k_max_float_int)
+    {
+      return static_cast<Float>(val);
+    }
+  }
+  else if (type_ == NodeType::Scalar)
+  {
+    try
+    {
+      std::size_t pos = 0;
+      const String& str = _string();
+      Float val = std::stod(str, &pos);
+      if (pos == str.size())
+      {
+        return val;
+      }
+    }
+    catch (const std::exception& e)
+    {
+      // will be handled below
+    }
+  }
+  throw TypeException(*this);
 }
 
 const String& Node::stringValue() const
 {
-  if (type_ != NodeType::String)
+  if (type_ != NodeType::String &&
+      type_ != NodeType::Scalar)
   {
     throw TypeException(*this);
   }
   return _string();
-}
-
-bool Node::asBool() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return false;
-  case NodeType::Boolean:
-    return _bool();
-  case NodeType::Integer:
-    return (_int() != 0) ? true : false;
-  case NodeType::FloatingPoint:
-    return (_float() != 0.0) ? true : false;
-  default:
-    throw TypeException(*this);
-  }
-}
-
-Int Node::asInt() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return 0;
-  case NodeType::Boolean:
-    return (_bool() ? 1 : 0);
-  case NodeType::Integer:
-    return _int();
-  case NodeType::FloatingPoint:
-    return _float();
-  default:
-    throw TypeException(*this);
-  }
-}
-
-Float Node::asFloat() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return 0.0;
-  case NodeType::Boolean:
-    return (_bool() ? 1.0 : 0.0);
-  case NodeType::Integer:
-    return _int();
-  case NodeType::FloatingPoint:
-    return _float();
-  default:
-    throw TypeException(*this);
-  }
 }
 
 Node& Node::operator[](std::size_t index)
@@ -573,6 +608,7 @@ bool operator==(const Node& lhs, const Node& rhs) noexcept
   case NodeType::FloatingPoint:
     return (lhs._float() == rhs._float());
   case NodeType::String:
+  case NodeType::Scalar:
     return (lhs._string() == rhs._string());
   case NodeType::Sequence:
     return (lhs._sequence() == rhs._sequence());

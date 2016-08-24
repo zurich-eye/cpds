@@ -120,8 +120,8 @@ TEST(JSON, FileImport)
 
   EXPECT_TRUE(node.isMap());
   EXPECT_EQ(Node(), node["a"]);
-  EXPECT_TRUE(node["b"].asBool());
-  EXPECT_EQ(25, node["c"].asInt());
+  EXPECT_TRUE(node["b"].boolValue());
+  EXPECT_EQ(25, node["c"].intValue());
 
   const ParseInfo& pi = json_import.parseinfo();
   ParseMark mk = pi.getMark(node);

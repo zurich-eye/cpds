@@ -87,6 +87,7 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
     dumpFloat(strm, node.floatValue());
     break;
   case NodeType::String:
+  case NodeType::Scalar:
     dumpString(strm, node.stringValue());
     break;
   case NodeType::Sequence:

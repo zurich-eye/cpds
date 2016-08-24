@@ -34,6 +34,7 @@ enum class NodeType
   Integer,
   FloatingPoint,
   String,
+  Scalar,
   Sequence,
   Map,
 }; // enum class NodeType
