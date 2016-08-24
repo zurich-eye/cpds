@@ -221,6 +221,12 @@ TEST(Node, Scalar)
   EXPECT_EQ(4678, node.intValue());
   EXPECT_DOUBLE_EQ(4678.0, node.floatValue());
   EXPECT_EQ("4678", node.stringValue());
+
+  node = Node::fromScalar("123.2");
+  EXPECT_THROW(node.boolValue(), TypeException);
+  EXPECT_THROW(node.intValue(), TypeException);
+  EXPECT_DOUBLE_EQ(123.2, node.floatValue());
+  EXPECT_EQ("123.2", node.stringValue());
 }
 
 TEST(Node, Sequence)
@@ -418,6 +424,15 @@ TEST(Node, Comparison)
   EXPECT_FALSE(n4 != n2);
   EXPECT_TRUE(n4 != n3);
   EXPECT_FALSE(n4 != n4);
+
+  Node sn = Node::fromScalar("5");
+  EXPECT_TRUE(sn == n1);
+  EXPECT_TRUE(n1 == sn);
+  EXPECT_FALSE(sn == n2);
+  EXPECT_FALSE(n2 == sn);
+  EXPECT_FALSE(sn == false);
+  EXPECT_FALSE(sn == 5.7);
+  EXPECT_FALSE(sn == "test");
 }
 
 TEST(Node, Merge)
