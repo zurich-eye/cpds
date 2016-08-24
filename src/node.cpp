@@ -471,23 +471,25 @@ std::size_t Node::erase(const String& key)
 
 void Node::merge(const Node& other)
 {
-  if (type_ != other.type_)
+  if (type_ == NodeType::Sequence && other.type_ == NodeType::Sequence)
+  {
+    mergeSequence(other);
+    return;
+  }
+  else if (type_ == NodeType::Map && other.type_ == NodeType::Map)
+  {
+    mergeMap(other);
+    return;
+  }
+
+  // abort if any sequence / map is involved
+  if (type_ == NodeType::Sequence || other.type_ == NodeType::Sequence ||
+      type_ == NodeType::Map || other.type_ == NodeType::Map)
   {
     throw TypeException(other);
   }
 
-  switch (type_)
-  {
-  case NodeType::Sequence:
-    mergeSequence(other);
-    break;
-  case NodeType::Map:
-    mergeMap(other);
-    break;
-  default:
-    *this = other; // default copy assignment
-    break;
-  }
+  *this = other; // default copy assignments
 }
 
 void Node::swap(Node& other) noexcept

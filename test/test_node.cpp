@@ -470,8 +470,37 @@ TEST(Node, Merge)
 
   EXPECT_EQ(refnode, node1);
 
-  node1 = 5;
-  node2 = 6.7;
+  // test the merge behaviour when a sequence / map is involved
+
+  node1 = Sequence();
+  node2 = 5.6;
 
   EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node1 = Map();
+
+  EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node2 = Sequence();
+
+  EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node1 = Sequence();
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  node1 = Map();
+  node2 = Map();
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  node1 = true;
+  node2 = 5.6;
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  EXPECT_EQ(5.6, node1.floatValue());
 }
