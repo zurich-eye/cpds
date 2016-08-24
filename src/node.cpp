@@ -67,6 +67,31 @@ inline void prepareMap(Map& map)
   }
 }
 
+// the Scalar node must be passed first
+bool compareScalar(const Node& scalar, const Node& other)
+{
+  try
+  {
+    switch (other.type())
+    {
+    case NodeType::Boolean:
+      return (scalar.boolValue() == other.boolValue());
+     case NodeType::Integer:
+      return (scalar.intValue() == other.intValue());
+    case NodeType::FloatingPoint:
+      return (scalar.floatValue() == other.floatValue());
+    case NodeType::String:
+      return (scalar.stringValue() == other.stringValue());
+    default:
+      return false;
+    }
+  }
+  catch (const TypeException& e)
+  {
+    return false;
+  }
+}
+
 } // unnamed namespace
 
 Node::Node(const Node& other)
@@ -592,29 +617,37 @@ void Node::mergeMap(const Node& other)
 
 bool operator==(const Node& lhs, const Node& rhs) noexcept
 {
-  if (lhs.type_ != rhs.type_)
+  // fast path -> types equal
+  if (lhs.type_ == rhs.type_)
   {
-    return false;
+    switch (lhs.type_)
+    {
+    case NodeType::Null:
+      return true;
+    case NodeType::Boolean:
+      return (lhs._bool() == rhs._bool());
+    case NodeType::Integer:
+      return (lhs._int() == rhs._int());
+    case NodeType::FloatingPoint:
+      return (lhs._float() == rhs._float());
+    case NodeType::String:
+    case NodeType::Scalar:
+      return (lhs._string() == rhs._string());
+    case NodeType::Sequence:
+      return (lhs._sequence() == rhs._sequence());
+    case NodeType::Map:
+      return (lhs._map() == rhs._map());
+    }
+  }
+  else if (lhs.type_ == NodeType::Scalar)
+  {
+    return compareScalar(lhs, rhs);
+  }
+  else if (rhs.type_ == NodeType::Scalar)
+  {
+    return compareScalar(rhs, lhs); // the Scalar is passed first
   }
 
-  switch (lhs.type_)
-  {
-  case NodeType::Null:
-    return true;
-  case NodeType::Boolean:
-    return (lhs._bool() == rhs._bool());
-  case NodeType::Integer:
-    return (lhs._int() == rhs._int());
-  case NodeType::FloatingPoint:
-    return (lhs._float() == rhs._float());
-  case NodeType::String:
-  case NodeType::Scalar:
-    return (lhs._string() == rhs._string());
-  case NodeType::Sequence:
-    return (lhs._sequence() == rhs._sequence());
-  case NodeType::Map:
-    return (lhs._map() == rhs._map());
-  }
   return false;
 }
 
