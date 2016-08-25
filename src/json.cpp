@@ -78,17 +78,19 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
     strm << "null";
     break;
   case NodeType::Boolean:
-    strm << ((node.boolValue()) ? "true" : "false");
+    dumpBoolean(strm, node.boolValue());
     break;
   case NodeType::Integer:
-    strm << node.intValue();
+    dumpInteger(strm, node.intValue());
     break;
   case NodeType::FloatingPoint:
     dumpFloat(strm, node.floatValue());
     break;
   case NodeType::String:
-  case NodeType::Scalar:
     dumpString(strm, node.stringValue());
+    break;
+  case NodeType::Scalar:
+    dumpScalar(strm, node);
     break;
   case NodeType::Sequence:
     dumpSequence(strm, node);
@@ -99,7 +101,17 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
   }
 }
 
-void JsonExport::dumpFloat(std::ostream& strm, double value)
+inline void JsonExport::dumpBoolean(std::ostream& strm, bool value)
+{
+  strm << (value ? "true" : "false");
+}
+
+inline void JsonExport::dumpInteger(std::ostream& strm, Int value)
+{
+  strm << value;
+}
+
+inline void JsonExport::dumpFloat(std::ostream& strm, Float value)
 {
   // need to handle +Inf, -Inf, and NaN.
   if (std::isfinite(value))
@@ -129,7 +141,7 @@ void JsonExport::dumpFloat(std::ostream& strm, double value)
   }
 }
 
-void JsonExport::dumpString(std::ostream& strm, const String& value)
+inline void JsonExport::dumpString(std::ostream& strm, const String& value)
 {
   strm << '"';
   for (std::size_t i = 0; i < value.size(); i++)
@@ -177,6 +189,43 @@ void JsonExport::dumpString(std::ostream& strm, const String& value)
     }
   }
   strm << '"';
+}
+
+inline void JsonExport::dumpScalar(std::ostream& strm, const Node& node)
+{
+  // try to convert to a native data type before emitting a string
+  try
+  {
+    bool val = node.boolValue();
+    dumpBoolean(strm, val);
+    return;
+  }
+  catch(const Exception& e)
+  {
+  }
+
+  try
+  {
+    Int val = node.intValue();
+    dumpInteger(strm, val);
+    return;
+  }
+  catch(const Exception& e)
+  {
+  }
+
+
+  try
+  {
+    Float val = node.floatValue();
+    dumpFloat(strm, val);
+    return;
+  }
+  catch(const Exception& e)
+  {
+  }
+
+  dumpString(strm, node.stringValue());
 }
 
 void JsonExport::dumpSequence(std::ostream& strm, const Node& node)

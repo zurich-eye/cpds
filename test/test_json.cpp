@@ -54,6 +54,21 @@ TEST(JSON, DataExport)
   EXPECT_THROW(json_export.dump(node), TypeException);
 }
 
+TEST(JSON, ScalarExport)
+{
+  Node node(Map({ { "a", Node::fromScalar("true") },
+                  { "b", Node::fromScalar("test") },
+                  { "c", Node::fromScalar("36") },
+                  { "d", Node::fromScalar("78.0") },
+                }));
+  JsonExport json_export;
+  std::string exp;
+  std::string cmp;
+  exp = json_export.dump(node);
+  cmp = "{\"a\":true,\"b\":\"test\",\"c\":36,\"d\":78.0}";
+  EXPECT_EQ(cmp, exp);
+}
+
 TEST(JSON, DataImport)
 {
   JsonImport json_import;
