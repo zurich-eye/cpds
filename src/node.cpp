@@ -67,31 +67,6 @@ inline void prepareMap(Map& map)
   }
 }
 
-// the Scalar node must be passed first
-bool compareScalar(const Node& scalar, const Node& other)
-{
-  try
-  {
-    switch (other.type())
-    {
-    case NodeType::Boolean:
-      return (scalar.boolValue() == other.boolValue());
-     case NodeType::Integer:
-      return (scalar.intValue() == other.intValue());
-    case NodeType::FloatingPoint:
-      return (scalar.floatValue() == other.floatValue());
-    case NodeType::String:
-      return (scalar.stringValue() == other.stringValue());
-    default:
-      return false;
-    }
-  }
-  catch (const TypeException& e)
-  {
-    return false;
-  }
-}
-
 } // unnamed namespace
 
 Node::Node(const Node& other)
@@ -103,7 +78,6 @@ Node::Node(const Node& other)
   switch (type_)
   {
   case NodeType::String:
-  case NodeType::Scalar:
     storage_.str_ = new String(other._string());
     break;
   case NodeType::Sequence:
@@ -154,22 +128,6 @@ Node::Node(String&& value)
   storage_.str_ = new String(std::move(value));
 }
 
-Node Node::fromScalar(const String& value)
-{
-  Node node;
-  node.type_ = NodeType::Scalar;
-  node.storage_.str_ = new String(value);
-  return node;
-}
-
-Node Node::fromScalar(String&& value)
-{
-  Node node;
-  node.type_ = NodeType::Scalar;
-  node.storage_.str_ = new String(std::move(value));
-  return node;
-}
-
 Node::Node(const Sequence& value)
   : type_(NodeType::Sequence)
   , id_(_nextId())
@@ -211,7 +169,6 @@ Node::~Node() noexcept
   switch (type_)
   {
   case NodeType::String:
-  case NodeType::Scalar:
     delete storage_.str_;
     break;
   case NodeType::Sequence:
@@ -244,18 +201,6 @@ bool Node::boolValue() const
   {
     return _bool();
   }
-  else if (type_ == NodeType::Scalar)
-  {
-    const String& val = _string();
-    if (val == "true")
-    {
-      return true;
-    }
-    else if (val == "false")
-    {
-      return false;
-    }
-  }
   throw TypeException(*this);
 }
 
@@ -264,23 +209,6 @@ Int Node::intValue() const
   if (type_ == NodeType::Integer)
   {
     return _int();
-  }
-  else if (type_ == NodeType::Scalar)
-  {
-    try
-    {
-      std::size_t pos = 0;
-      const String& str = _string();
-      Int val = std::stoll(str, &pos, 10);
-      if (pos == str.size())
-      {
-        return val;
-      }
-    }
-    catch (const std::exception& e)
-    {
-      // will be handled below
-    }
   }
   throw TypeException(*this);
 }
@@ -301,30 +229,12 @@ Float Node::floatValue() const
       return static_cast<Float>(val);
     }
   }
-  else if (type_ == NodeType::Scalar)
-  {
-    try
-    {
-      std::size_t pos = 0;
-      const String& str = _string();
-      Float val = std::stod(str, &pos);
-      if (pos == str.size())
-      {
-        return val;
-      }
-    }
-    catch (const std::exception& e)
-    {
-      // will be handled below
-    }
-  }
   throw TypeException(*this);
 }
 
 const String& Node::stringValue() const
 {
-  if (type_ != NodeType::String &&
-      type_ != NodeType::Scalar)
+  if (type_ != NodeType::String)
   {
     throw TypeException(*this);
   }
@@ -619,7 +529,6 @@ void Node::mergeMap(const Node& other)
 
 bool operator==(const Node& lhs, const Node& rhs) noexcept
 {
-  // fast path -> types equal
   if (lhs.type_ == rhs.type_)
   {
     switch (lhs.type_)
@@ -633,21 +542,12 @@ bool operator==(const Node& lhs, const Node& rhs) noexcept
     case NodeType::FloatingPoint:
       return (lhs._float() == rhs._float());
     case NodeType::String:
-    case NodeType::Scalar:
       return (lhs._string() == rhs._string());
     case NodeType::Sequence:
       return (lhs._sequence() == rhs._sequence());
     case NodeType::Map:
       return (lhs._map() == rhs._map());
     }
-  }
-  else if (lhs.type_ == NodeType::Scalar)
-  {
-    return compareScalar(lhs, rhs);
-  }
-  else if (rhs.type_ == NodeType::Scalar)
-  {
-    return compareScalar(rhs, lhs); // the Scalar is passed first
   }
 
   return false;

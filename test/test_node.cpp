@@ -45,7 +45,7 @@ TEST(Node, Null)
   EXPECT_FALSE(node.isFloat());
   EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
-  EXPECT_FALSE(node.isScalar());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -186,47 +186,6 @@ TEST(Node, String)
 
   EXPECT_THROW(node[0], TypeException);
   EXPECT_THROW(node["test"], TypeException);
-}
-
-TEST(Node, Scalar)
-{
-  Node node = Node::fromScalar("true");
-
-  EXPECT_EQ(NodeType::Scalar, node.type());
-  EXPECT_FALSE(node.isNull());
-  EXPECT_FALSE(node.isBool());
-  EXPECT_FALSE(node.isInt());
-  EXPECT_FALSE(node.isFloat());
-  EXPECT_FALSE(node.isNumber());
-  EXPECT_FALSE(node.isString());
-  EXPECT_TRUE(node.isScalar());
-  EXPECT_FALSE(node.isSequence());
-  EXPECT_FALSE(node.isMap());
-
-  EXPECT_TRUE(node.boolValue());
-  EXPECT_THROW(node.intValue(), TypeException);
-  EXPECT_THROW(node.floatValue(), TypeException);
-  EXPECT_EQ("true", node.stringValue());
-
-  EXPECT_EQ(0, node.size());
-
-  EXPECT_THROW(node[0], TypeException);
-  EXPECT_THROW(node["test"], TypeException);
-
-  String val("4678");
-  node = Node::fromScalar(val);
-  EXPECT_EQ(NodeType::Scalar, node.type());
-
-  EXPECT_THROW(node.boolValue(), TypeException);
-  EXPECT_EQ(4678, node.intValue());
-  EXPECT_DOUBLE_EQ(4678.0, node.floatValue());
-  EXPECT_EQ("4678", node.stringValue());
-
-  node = Node::fromScalar("123.2");
-  EXPECT_THROW(node.boolValue(), TypeException);
-  EXPECT_THROW(node.intValue(), TypeException);
-  EXPECT_DOUBLE_EQ(123.2, node.floatValue());
-  EXPECT_EQ("123.2", node.stringValue());
 }
 
 TEST(Node, Sequence)
@@ -424,15 +383,6 @@ TEST(Node, Comparison)
   EXPECT_FALSE(n4 != n2);
   EXPECT_TRUE(n4 != n3);
   EXPECT_FALSE(n4 != n4);
-
-  Node sn = Node::fromScalar("5");
-  EXPECT_TRUE(sn == n1);
-  EXPECT_TRUE(n1 == sn);
-  EXPECT_FALSE(sn == n2);
-  EXPECT_FALSE(n2 == sn);
-  EXPECT_FALSE(sn == false);
-  EXPECT_FALSE(sn == 5.7);
-  EXPECT_FALSE(sn == "test");
 }
 
 TEST(Node, Merge)

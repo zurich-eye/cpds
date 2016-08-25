@@ -89,9 +89,6 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
   case NodeType::String:
     dumpString(strm, node.stringValue());
     break;
-  case NodeType::Scalar:
-    dumpScalar(strm, node);
-    break;
   case NodeType::Sequence:
     dumpSequence(strm, node);
     break;
@@ -189,43 +186,6 @@ inline void JsonExport::dumpString(std::ostream& strm, const String& value)
     }
   }
   strm << '"';
-}
-
-inline void JsonExport::dumpScalar(std::ostream& strm, const Node& node)
-{
-  // try to convert to a native data type before emitting a string
-  try
-  {
-    bool val = node.boolValue();
-    dumpBoolean(strm, val);
-    return;
-  }
-  catch(const Exception& e)
-  {
-  }
-
-  try
-  {
-    Int val = node.intValue();
-    dumpInteger(strm, val);
-    return;
-  }
-  catch(const Exception& e)
-  {
-  }
-
-
-  try
-  {
-    Float val = node.floatValue();
-    dumpFloat(strm, val);
-    return;
-  }
-  catch(const Exception& e)
-  {
-  }
-
-  dumpString(strm, node.stringValue());
 }
 
 void JsonExport::dumpSequence(std::ostream& strm, const Node& node)

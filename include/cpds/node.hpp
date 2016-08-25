@@ -37,8 +37,6 @@ public:
   Node(const char* value); // needed or the bool constructor would be used
   Node(const String& value);
   Node(String&& value);
-  static Node fromScalar(const String& value);
-  static Node fromScalar(String&& value);
   Node(const Sequence& value);
   Node(Sequence&& value);
   Node(const Map& value);
@@ -343,15 +341,7 @@ T Node::as() const
 
 inline bool Node::isScalar() const
 {
-  switch (type_)
-  {
-  case NodeType::Null:
-  case NodeType::Sequence:
-  case NodeType::Map:
-    return false;
-  default:
-    return true;
-  }
+  return (isNull() || isBool() || isInt() || isFloat() || isString());
 }
 
 inline uint32_t Node::_nextId() const
