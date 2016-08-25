@@ -1,3 +1,4 @@
+#include <cmath>
 #include <fstream>
 #include <gtest/gtest.h>
 #include "cpds/node.hpp"
@@ -72,28 +73,131 @@ TEST(YAML, DefaultDataImport)
   EXPECT_EQ(7, mk.position());
 }
 
-TEST(YAML, StringDataImport)
+TEST(YAML, TagDeduction)
 {
   YamlImport yaml_import;
-  yaml_import.setParseScalars(false);
+  String str;
+  Node node;
 
-  std::string str;
-  str = "a:\nb: true\nc: 25\nd: 99.2\ne: \"str with ä and / } \\\" \\\\ special"
-        "\\n \\x01 chars\"\nf:\n  - false\n  - 3.141592653589793\n  - 6\n"
-        "g:\n  aa: 5\n  bb: .inf";
+  str = "null";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isNull());
 
-  Node ref_node(Map({ { "a", Node() },
-                      { "b", "true" },
-                      { "c", "25" },
-                      { "d", "99.2" },
-                      { "e", "str with ä and / } \" \\ special\n \u0001 chars" },
-                      { "f", Sequence({"false", "3.141592653589793", "6"}) },
-                      { "g", Map({ {"aa", "5"}, {"bb", ".inf" } }) }
-                     }));
+  str = "Null";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isNull());
 
-  Node node = yaml_import.load(str);
+  str = "NULL";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isNull());
 
-  EXPECT_EQ(ref_node, node);
+  str = "~";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isNull());
+
+  str = "";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isNull());
+
+  str = "true";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.boolValue());
+
+  str = "True";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.boolValue());
+
+  str = "TRUE";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.boolValue());
+
+  str = "TrUE";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isString());
+
+  str = "false";
+  node = yaml_import.load(str);
+  EXPECT_FALSE(node.boolValue());
+
+  str = "False";
+  node = yaml_import.load(str);
+  EXPECT_FALSE(node.boolValue());
+
+  str = "FALSE";
+  node = yaml_import.load(str);
+  EXPECT_FALSE(node.boolValue());
+
+  str = "-4567";
+  node = yaml_import.load(str);
+  EXPECT_EQ(-4567, node.intValue());
+
+  str = "0o46";
+  node = yaml_import.load(str);
+  EXPECT_EQ(38, node.intValue());
+
+  str = "0xa5";
+  node = yaml_import.load(str);
+  EXPECT_EQ(165, node.intValue());
+
+  str = ".inf";
+  node = yaml_import.load(str);
+  EXPECT_EQ(std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = ".Inf";
+  node = yaml_import.load(str);
+  EXPECT_EQ(std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = ".INF";
+  node = yaml_import.load(str);
+  EXPECT_EQ(std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = ".InF";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isString());
+
+  str = "-.inf";
+  node = yaml_import.load(str);
+  EXPECT_EQ(-std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = "-.Inf";
+  node = yaml_import.load(str);
+  EXPECT_EQ(-std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = "-.INF";
+  node = yaml_import.load(str);
+  EXPECT_EQ(-std::numeric_limits<Float>::infinity(), node.floatValue());
+
+  str = "-.InF";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isString());
+
+  str = ".nan";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(std::isnan(node.floatValue()));
+
+  str = ".NaN";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(std::isnan(node.floatValue()));
+
+  str = ".NAN";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(std::isnan(node.floatValue()));
+
+  str = ".nAN";
+  node = yaml_import.load(str);
+  EXPECT_TRUE(node.isString());
+
+  str = "-4567.2";
+  node = yaml_import.load(str);
+  EXPECT_DOUBLE_EQ(-4567.2, node.floatValue());
+
+  str = "-0.539e9";
+  node = yaml_import.load(str);
+  EXPECT_DOUBLE_EQ(-5.39e8, node.floatValue());
+
+  str = "test";
+  node = yaml_import.load(str);
+  EXPECT_EQ("test", node.stringValue());
 }
 
 TEST(YAML, FileImport)
