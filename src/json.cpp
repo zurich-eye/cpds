@@ -14,7 +14,6 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-#include <codecvt>
 #include <limits>
 #include "cpds/node.hpp"
 #include "cpds/exception.hpp"
