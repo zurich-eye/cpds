@@ -12,7 +12,10 @@
 #include <cmath>
 #include <cassert>
 #include <fstream>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <yaml-cpp/yaml.h>
+#pragma GCC diagnostic pop
 #include "cpds/node.hpp"
 #include "cpds/exception.hpp"
 
