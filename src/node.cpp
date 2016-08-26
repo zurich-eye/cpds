@@ -18,6 +18,17 @@ namespace cpds {
 // enforce local linkage
 namespace {
 
+constexpr Int k_max_float_int = (1ull<<53);
+constexpr Int k_min_float_int = -k_max_float_int;
+
+// check for non-representable integers in IEEE754
+static_assert(static_cast<double>(k_max_float_int+0) ==
+              static_cast<double>(k_max_float_int+1),
+              "this platform does not use IEEE754 floating point numbers");
+static_assert(static_cast<double>(k_min_float_int+0) ==
+              static_cast<double>(k_min_float_int-1),
+              "this platform does not use IEEE754 floating point numbers");
+
 struct MapCompare
 {
   bool operator()(const MapEntry& a, const MapEntry& b) const
@@ -186,29 +197,39 @@ std::size_t Node::size() const noexcept
 
 bool Node::boolValue() const
 {
-  if (type_ != NodeType::Boolean)
+  if (type_ == NodeType::Boolean)
   {
-    throw TypeException(*this);
+    return _bool();
   }
-  return _bool();
+  throw TypeException(*this);
 }
 
 Int Node::intValue() const
 {
-  if (type_ != NodeType::Integer)
+  if (type_ == NodeType::Integer)
   {
-    throw TypeException(*this);
+    return _int();
   }
-  return _int();
+  throw TypeException(*this);
 }
 
 Float Node::floatValue() const
 {
-  if (type_ != NodeType::FloatingPoint)
+  // transform integers to floats unless they are outside the range where
+  // are guaranteed to be representable
+  if (type_ == NodeType::FloatingPoint)
   {
-    throw TypeException(*this);
+    return _float();
   }
-  return _float();
+  else if (type_ == NodeType::Integer)
+  {
+    Int val = _int();
+    if (val >= k_min_float_int && val <= k_max_float_int)
+    {
+      return static_cast<Float>(val);
+    }
+  }
+  throw TypeException(*this);
 }
 
 const String& Node::stringValue() const
@@ -218,57 +239,6 @@ const String& Node::stringValue() const
     throw TypeException(*this);
   }
   return _string();
-}
-
-bool Node::asBool() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return false;
-  case NodeType::Boolean:
-    return _bool();
-  case NodeType::Integer:
-    return (_int() != 0) ? true : false;
-  case NodeType::FloatingPoint:
-    return (_float() != 0.0) ? true : false;
-  default:
-    throw TypeException(*this);
-  }
-}
-
-Int Node::asInt() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return 0;
-  case NodeType::Boolean:
-    return 0;
-  case NodeType::Integer:
-    return _int();
-  case NodeType::FloatingPoint:
-    return _float();
-  default:
-    throw TypeException(*this);
-  }
-}
-
-Float Node::asFloat() const
-{
-  switch(type_)
-  {
-  case NodeType::Null:
-    return 0.0;
-  case NodeType::Boolean:
-    return 0.0;
-  case NodeType::Integer:
-    return _int();
-  case NodeType::FloatingPoint:
-    return _float();
-  default:
-    throw TypeException(*this);
-  }
 }
 
 Node& Node::operator[](std::size_t index)
@@ -411,23 +381,25 @@ std::size_t Node::erase(const String& key)
 
 void Node::merge(const Node& other)
 {
-  if (type_ != other.type_)
+  if (type_ == NodeType::Sequence && other.type_ == NodeType::Sequence)
+  {
+    mergeSequence(other);
+    return;
+  }
+  else if (type_ == NodeType::Map && other.type_ == NodeType::Map)
+  {
+    mergeMap(other);
+    return;
+  }
+
+  // abort if any sequence / map is involved
+  if (type_ == NodeType::Sequence || other.type_ == NodeType::Sequence ||
+      type_ == NodeType::Map || other.type_ == NodeType::Map)
   {
     throw TypeException(other);
   }
 
-  switch (type_)
-  {
-  case NodeType::Sequence:
-    mergeSequence(other);
-    break;
-  case NodeType::Map:
-    mergeMap(other);
-    break;
-  default:
-    *this = other; // default copy assignment
-    break;
-  }
+  *this = other; // default copy assignments
 }
 
 void Node::swap(Node& other) noexcept
@@ -557,28 +529,27 @@ void Node::mergeMap(const Node& other)
 
 bool operator==(const Node& lhs, const Node& rhs) noexcept
 {
-  if (lhs.type_ != rhs.type_)
+  if (lhs.type_ == rhs.type_)
   {
-    return false;
+    switch (lhs.type_)
+    {
+    case NodeType::Null:
+      return true;
+    case NodeType::Boolean:
+      return (lhs._bool() == rhs._bool());
+    case NodeType::Integer:
+      return (lhs._int() == rhs._int());
+    case NodeType::FloatingPoint:
+      return (lhs._float() == rhs._float());
+    case NodeType::String:
+      return (lhs._string() == rhs._string());
+    case NodeType::Sequence:
+      return (lhs._sequence() == rhs._sequence());
+    case NodeType::Map:
+      return (lhs._map() == rhs._map());
+    }
   }
 
-  switch (lhs.type_)
-  {
-  case NodeType::Null:
-    return true;
-  case NodeType::Boolean:
-    return (lhs._bool() == rhs._bool());
-  case NodeType::Integer:
-    return (lhs._int() == rhs._int());
-  case NodeType::FloatingPoint:
-    return (lhs._float() == rhs._float());
-  case NodeType::String:
-    return (lhs._string() == rhs._string());
-  case NodeType::Sequence:
-    return (lhs._sequence() == rhs._sequence());
-  case NodeType::Map:
-    return (lhs._map() == rhs._map());
-  }
   return false;
 }
 

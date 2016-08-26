@@ -180,45 +180,131 @@ Node YamlImport::doTransform(const YAML::Node& node)
 
 Node YamlImport::transformScalar(const YAML::Node& node)
 {
-  if (parse_scalars_)
+  //
+  // following the Core Schema (10.3 of YAML 1.2)
+  //
+
+  const String& str = node.Scalar();
+
+  //
+  // null
+  //
+
+  if (str.empty() || str == "null" || str == "Null" ||
+      str == "NULL" || str == "~")
+  {
+    return Node();
+  }
+
+  //
+  // booleans
+  //
+
+  if (str == "true" || str == "True" || str == "TRUE")
+  {
+    return true;
+  }
+  else if (str == "false" || str == "False" || str == "FALSE")
+  {
+    return false;
+  }
+
+  //
+  // integers
+  //
+
+  if (str[0] == '+' || str[0] == '-' ||
+      (str[0] >= '0' && str[0] <= '9'))
   {
     try
     {
-      bool value = node.as<bool>();
-      return Node(value);
+      std::size_t pos = 0;
+      Int intval = std::stoll(str, &pos, 10);
+      if (pos == str.size())
+      {
+        return intval;
+      }
     }
-    catch (YAML::Exception& e) { }
-
-    try
+    catch (const std::exception& e)
     {
-      int64_t value = node.as<int64_t>();
-      return Node(value);
+      // ignore
     }
-    catch (YAML::Exception& e) { }
-
-    // special handling for NaN, Inf
-    if (node.Scalar() == ".nan")
-    {
-      return Node(std::numeric_limits<double>::quiet_NaN());
-    }
-    else if (node.Scalar() == ".inf")
-    {
-      return Node(std::numeric_limits<double>::infinity());
-    }
-    else if (node.Scalar() == "-.inf")
-    {
-      return Node(-std::numeric_limits<double>::infinity());
-    }
-
-    try
-    {
-      double value = node.as<double>();
-      return Node(value);
-    }
-    catch (YAML::Exception& e) { }
-
   }
-  return Node(node.Scalar());
+
+  if (str.size() >= 3 && str[0] == '0' && str[1] == 'o')
+  {
+    try
+    {
+      String valstr = str.substr(2);
+      std::size_t pos = 0;
+      Int intval = std::stoll(valstr, &pos, 8);
+      if (pos == valstr.size())
+      {
+        return intval;
+      }
+    }
+    catch (const std::exception& e)
+    {
+      // ignore
+    }
+  }
+
+  if (str.size() >= 3 && str[0] == '0' && str[1] == 'x')
+  {
+    try
+    {
+      String valstr = str.substr(2);
+      std::size_t pos = 0;
+      Int intval = std::stoll(valstr, &pos, 16);
+      if (pos == valstr.size())
+      {
+        return intval;
+      }
+    }
+    catch (const std::exception& e)
+    {
+      // ignore
+    }
+  }
+
+  //
+  // floating point
+  //
+
+  if (str == ".inf" || str == ".Inf" || str == ".INF")
+  {
+    return std::numeric_limits<Float>::infinity();
+  }
+
+  if (str == "-.inf" || str == "-.Inf" || str == "-.INF")
+  {
+    return -std::numeric_limits<Float>::infinity();
+  }
+
+  if (str == ".nan" || str == ".NaN" || str == ".NAN")
+  {
+    return std::numeric_limits<Float>::quiet_NaN();
+  }
+
+  try
+  {
+    std::size_t pos;
+    Float val = std::stod(str, &pos);
+    if (pos == str.size())
+    {
+      return val;
+    }
+  }
+  catch (const std::exception& e)
+  {
+    // ignore
+  }
+
+  //
+  // String
+  //
+
+  return str;
 }
 
 Node YamlImport::transformSequence(const YAML::Node& node)

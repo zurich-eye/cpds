@@ -78,10 +78,10 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
     strm << "null";
     break;
   case NodeType::Boolean:
-    strm << ((node.boolValue()) ? "true" : "false");
+    dumpBoolean(strm, node.boolValue());
     break;
   case NodeType::Integer:
-    strm << node.intValue();
+    dumpInteger(strm, node.intValue());
     break;
   case NodeType::FloatingPoint:
     dumpFloat(strm, node.floatValue());
@@ -98,7 +98,17 @@ void JsonExport::dumpNode(std::ostream& strm, const Node& node)
   }
 }
 
-void JsonExport::dumpFloat(std::ostream& strm, double value)
+inline void JsonExport::dumpBoolean(std::ostream& strm, bool value)
+{
+  strm << (value ? "true" : "false");
+}
+
+inline void JsonExport::dumpInteger(std::ostream& strm, Int value)
+{
+  strm << value;
+}
+
+inline void JsonExport::dumpFloat(std::ostream& strm, Float value)
 {
   // need to handle +Inf, -Inf, and NaN.
   if (std::isfinite(value))
@@ -128,7 +138,7 @@ void JsonExport::dumpFloat(std::ostream& strm, double value)
   }
 }
 
-void JsonExport::dumpString(std::ostream& strm, const String& value)
+inline void JsonExport::dumpString(std::ostream& strm, const String& value)
 {
   strm << '"';
   for (std::size_t i = 0; i < value.size(); i++)

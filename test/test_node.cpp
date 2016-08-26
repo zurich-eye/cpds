@@ -43,7 +43,9 @@ TEST(Node, Null)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -51,10 +53,6 @@ TEST(Node, Null)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_THROW(node.floatValue(), TypeException);
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_FALSE(node.asBool());
-  EXPECT_EQ(0, node.asInt());
-  EXPECT_DOUBLE_EQ(0.0, node.asFloat());
 
   EXPECT_EQ(0, node.size());
 
@@ -71,7 +69,9 @@ TEST(Node, Bool)
   EXPECT_TRUE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -79,10 +79,6 @@ TEST(Node, Bool)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_THROW(node.floatValue(), TypeException);
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_FALSE(node.asBool());
-  EXPECT_EQ(0, node.asInt());
-  EXPECT_DOUBLE_EQ(0.0, node.asFloat());
 
   EXPECT_EQ(0, node.size());
 
@@ -99,18 +95,16 @@ TEST(Node, Int)
   EXPECT_FALSE(node.isBool());
   EXPECT_TRUE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_TRUE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
   EXPECT_THROW(node.boolValue(), TypeException);
   EXPECT_EQ(-4, node.intValue());
-  EXPECT_THROW(node.floatValue(), TypeException);
+  EXPECT_EQ(-4.0, node.floatValue());
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_TRUE(node.asBool());
-  EXPECT_EQ(-4, node.asInt());
-  EXPECT_DOUBLE_EQ(-4.0, node.asFloat());
 
   EXPECT_EQ(0, node.size());
 
@@ -136,6 +130,10 @@ TEST(Node, Int)
   Node node6 = 1000ull;
   EXPECT_EQ(NodeType::Integer, node6.type());
   EXPECT_EQ(1000, node6.intValue());
+
+  Node node7 = (1ull<<53)+1; // cannot be represented as a floating point
+  EXPECT_EQ((1ull<<53)+1, node7.intValue());
+  EXPECT_THROW(node7.floatValue(), TypeException);
 }
 
 TEST(Node, Float)
@@ -147,7 +145,9 @@ TEST(Node, Float)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_TRUE(node.isFloat());
+  EXPECT_TRUE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -155,10 +155,6 @@ TEST(Node, Float)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_DOUBLE_EQ(5.6, node.floatValue());
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_TRUE(node.asBool());
-  EXPECT_EQ(5, node.asInt());
-  EXPECT_DOUBLE_EQ(5.6, node.asFloat());
 
   EXPECT_EQ(0, node.size());
 
@@ -175,7 +171,9 @@ TEST(Node, String)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_TRUE(node.isString());
+  EXPECT_TRUE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -183,10 +181,6 @@ TEST(Node, String)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_THROW(node.floatValue(), TypeException);
   EXPECT_EQ("test", node.stringValue());
-
-  EXPECT_THROW(node.asBool(), TypeException);
-  EXPECT_THROW(node.asInt(), TypeException);
-  EXPECT_THROW(node.asFloat(), TypeException);
 
   EXPECT_EQ(0, node.size());
 
@@ -204,7 +198,9 @@ TEST(Node, Sequence)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_FALSE(node.isScalar());
   EXPECT_TRUE(node.isSequence());
   EXPECT_FALSE(node.isMap());
 
@@ -212,10 +208,6 @@ TEST(Node, Sequence)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_THROW(node.floatValue(), TypeException);
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_THROW(node.asBool(), TypeException);
-  EXPECT_THROW(node.asInt(), TypeException);
-  EXPECT_THROW(node.asFloat(), TypeException);
 
   EXPECT_EQ(2, node.size());
 
@@ -241,7 +233,9 @@ TEST(Node, Map)
   EXPECT_FALSE(node.isBool());
   EXPECT_FALSE(node.isInt());
   EXPECT_FALSE(node.isFloat());
+  EXPECT_FALSE(node.isNumber());
   EXPECT_FALSE(node.isString());
+  EXPECT_FALSE(node.isScalar());
   EXPECT_FALSE(node.isSequence());
   EXPECT_TRUE(node.isMap());
 
@@ -249,10 +243,6 @@ TEST(Node, Map)
   EXPECT_THROW(node.intValue(), TypeException);
   EXPECT_THROW(node.floatValue(), TypeException);
   EXPECT_THROW(node.stringValue(), TypeException);
-
-  EXPECT_THROW(node.asBool(), TypeException);
-  EXPECT_THROW(node.asInt(), TypeException);
-  EXPECT_THROW(node.asFloat(), TypeException);
 
   EXPECT_EQ(3, node.size());
 
@@ -430,8 +420,37 @@ TEST(Node, Merge)
 
   EXPECT_EQ(refnode, node1);
 
-  node1 = 5;
-  node2 = 6.7;
+  // test the merge behaviour when a sequence / map is involved
+
+  node1 = Sequence();
+  node2 = 5.6;
 
   EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node1 = Map();
+
+  EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node2 = Sequence();
+
+  EXPECT_THROW(node1.merge(node2), TypeException);
+  EXPECT_THROW(node2.merge(node1), TypeException);
+
+  node1 = Sequence();
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  node1 = Map();
+  node2 = Map();
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  node1 = true;
+  node2 = 5.6;
+
+  EXPECT_NO_THROW(node1.merge(node2));
+
+  EXPECT_EQ(5.6, node1.floatValue());
 }

@@ -48,23 +48,11 @@ void vIntRange(const Node& node,
 }
 
 // floating point range validator
-void vFloatRangeStrict(const Node& node,
-                       const Validator& validator)
-{
-  FloatRange range = validator.floatRange();
-  Float val = node.floatValue();
-  if (val < range.first || val > range.second)
-  {
-    throw FloatRangeException(range.first, range.second, val, node);
-  }
-}
-
-// floating point range validator
 void vFloatRange(const Node& node,
                  const Validator& validator)
 {
   FloatRange range = validator.floatRange();
-  Float val = node.asFloat();
+  Float val = node.floatValue();
   if (val < range.first || val > range.second)
   {
     throw FloatRangeException(range.first, range.second, val, node);
@@ -151,9 +139,9 @@ Validator::Validator(IntRange int_range)
   aux_data_.int_range_ = new IntRange(int_range);
 }
 
-Validator::Validator(FloatRange float_range, ValidationFcn validation_fcn)
+Validator::Validator(FloatRange float_range)
   : type_(NodeType::FloatingPoint)
-  , fcn_(validation_fcn)
+  , fcn_(vFloatRange)
 {
   aux_data_.float_range_ = new FloatRange(float_range);
 }
@@ -343,8 +331,8 @@ FloatingPointType::FloatingPointType()
 {
 }
 
-FloatingPointType::FloatingPointType(Float min, Float max, bool strict)
-  : Validator(std::make_pair(min, max), strict?vFloatRangeStrict:vFloatRange)
+FloatingPointType::FloatingPointType(Float min, Float max)
+  : Validator(std::make_pair(min, max))
 {
 }
 

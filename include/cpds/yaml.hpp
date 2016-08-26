@@ -52,15 +52,6 @@ public:
    **/
   const ParseInfo& parseinfo() const { return parseinfo_; }
 
-  /**
-   * YAML treats all scalars as strings.
-   * When this flag is true (the default), the parser tries to extract
-   * booleans, integers and floating point numbers from the string data and
-   * create the corresponding type.
-   **/
-  bool parseScalars() const { return parse_scalars_; }
-  void setParseScalars(bool flag) { parse_scalars_ = flag; }
-
 private:
   Node load(std::istream& strm, StringPtr filename);
 
@@ -73,7 +64,6 @@ private:
   std::istream* strm_ = nullptr;
   StringPtr filename_;
   ParseInfo parseinfo_;
-  bool parse_scalars_ = true;
 }; // class YamlImport
 
 } // namespace cpds

@@ -41,8 +41,10 @@ public:
   void setIndent(unsigned indent) { indent_ = indent; }
 
 private:
-  void dumpNode(std::ostream &strm, const Node &node);
-  void dumpFloat(std::ostream& strm, double value);
+  void dumpNode(std::ostream& strm, const Node& node);
+  void dumpBoolean(std::ostream& strm, bool value);
+  void dumpInteger(std::ostream& strm, Int value);
+  void dumpFloat(std::ostream& strm, Float value);
   void dumpString(std::ostream& strm, const String& value);
   void dumpSequence(std::ostream& strm, const Node& node);
   void dumpMap(std::ostream& strm, const Node& node);
