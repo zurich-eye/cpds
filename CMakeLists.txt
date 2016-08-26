@@ -3,10 +3,11 @@
 # cpds
 #
 # Copyright (c) 2016 Hannes Friederich.
+# Copyright (c) ETH Zurich, Wyss Zurich, Zurich Eye
 #
 
-cmake_minimum_required(VERSION 3.1)
 project(cpds)
+cmake_minimum_required(VERSION 3.1)
 
 find_package(catkin_simple REQUIRED)
 catkin_simple(ALL_DEPS_REQUIRED)
