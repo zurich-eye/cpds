@@ -13,7 +13,6 @@
 #include <cassert>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
-#include <yaml-cpp/node/node.h>
 #include "cpds/node.hpp"
 #include "cpds/exception.hpp"
 
