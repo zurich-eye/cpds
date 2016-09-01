@@ -38,6 +38,13 @@ enum Closedness
   NoMoreEntries
 }; // enum Closedness
 
+enum GroupEnableResult
+{
+  Invalid, ///< The map group is invalid for the given data
+  Valid,   ///< The map group is already validated
+  Check,   ///< Perform the group member check
+}; // enum GroupEnableResult
+
 /**
  * The validator function shall throw if the node does not validate.
  **/
@@ -49,7 +56,7 @@ typedef void (*ValidationFcn)(const Node& node,
  * for the given node.
  * Exceptions are considered a fatal error like a failing test in a validator.
  **/
-typedef bool (*GroupEnableFcn)(const Node& node);
+typedef GroupEnableResult (*GroupEnableFcn)(const Node& node);
 
 /**
  * Class to validate a node (and its children where applicable).
@@ -185,7 +192,7 @@ public:
            Closedness closedness,
            GroupEnableFcn enable_fcn);
 
-  bool isEnabled(const Node& node) const;
+  GroupEnableResult check(const Node& node) const;
   void validate(const Node& node) const;
 
 private:
