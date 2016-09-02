@@ -87,13 +87,26 @@ void threeIntegers(const Node& node, const Validator& /*validator*/)
   }
 }
 
-bool hasKeyB(const Node& node)
+GroupEnableResult hasKeyB(const Node& node)
 {
   if (node.find("b") != node.end())
   {
-    return true;
+    return Check;
   }
-  return false;
+  return Invalid;
+}
+
+GroupEnableResult hasTrueA(const Node& node)
+{
+  if (node.find("a") != node.end())
+  {
+    if (node.at("a").boolValue() == true)
+    {
+      return Check;
+    }
+    return Valid;
+  }
+  return Invalid;
 }
 
 } // unnamed namespace
@@ -393,6 +406,31 @@ TEST(Validator, Map)
   EXPECT_THROW(v4.validate(node6), ValidationException); // key A missing
   EXPECT_THROW(v5.validate(node6), ValidationException); // key B missing
   EXPECT_THROW(v6.validate(node6), TypeException);
+}
+
+TEST(Validator, MapGroupEnable)
+{
+  Node node1 = Map({ { "a", false } });
+  Node node2 = Map({ { "a", false },
+                     { "b", 5 } });
+  Node node3 = Map({ { "a", true },
+                     { "b", 5 } });
+  Node node4 = Map({ { "a", true },
+                     { "b", 6 } });
+  Node node5 = Map({ { "a", true },
+                     { "b", 6 },
+                     { "c", 8 } });
+
+  Validator val = MapType(MapGroup({
+                       { "a", BooleanType(), Required },
+                       { "b", IntegerType(6, 6), Required },
+                     }, NoMoreEntries, hasTrueA ));
+
+  EXPECT_NO_THROW(val.validate(node1)); // not enabled
+  EXPECT_NO_THROW(val.validate(node2)); // not enabled
+  EXPECT_THROW(val.validate(node3), ValidationException); // b out of range
+  EXPECT_NO_THROW(val.validate(node4)); // b in range
+  EXPECT_THROW(val.validate(node5), ValidationException); // extra entry
 }
 
 TEST(Validator, Complex)

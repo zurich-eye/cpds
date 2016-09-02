@@ -30,9 +30,9 @@ void vType(const Node& node,
 }
 
 // accepts all maps
-bool vAllMaps(const Node& /*node*/)
+GroupEnableResult vAllMaps(const Node& /*node*/)
 {
-  return true;
+  return Check;
 }
 
 // integer range validator
@@ -103,17 +103,22 @@ void vMap(const Node& node,
     return; // nothing to validate against
   }
 
-  bool enabled = false; // at least one group must be enabled
+  bool matched = false; // at least one group must match
   for (const MapGroup& group : groups)
   {
-    if (group.isEnabled(node))
+    GroupEnableResult result = group.check(node);
+    if (result == Invalid)
+    {
+      continue;
+    }
+    else if (result == Check)
     {
       group.validate(node);
-      enabled = true;
     }
-  }
+    matched = true;
+  } // loop
 
-  if (enabled == false)
+  if (matched == false)
   {
     throw ValidationException("map does not match any validation group", node);
   }
@@ -443,7 +448,7 @@ MapGroup::MapGroup(MapEntryTypeVector entries,
 {
 }
 
-bool MapGroup::isEnabled(const Node& node) const
+GroupEnableResult MapGroup::check(const Node& node) const
 {
   return enable_fcn_(node);
 }
